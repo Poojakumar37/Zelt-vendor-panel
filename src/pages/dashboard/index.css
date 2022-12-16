@@ -1,0 +1,8 @@
+.accordion-item:first-of-type .accordion-button{
+    background-color:#f1f1f1;
+    font-size: 20px;
+}
+.accordion-body{
+    width: 100%;
+    font-size: 16px;
+}

@@ -1,0 +1,212 @@
+@import url("https://fonts.googleapis.com/css2?family=Mulish&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500&family=Mulish&display=swap");
+body {
+  font-family: "Mulish", sans-serif !important;
+  background: #f4f6f9 !important;
+}
+.card1 {
+  background: #17a2b8 !important;
+}
+.headertext{
+  color: #004026
+}
+.text{
+  color: #BE783B
+}
+.text1{
+  color: #A17441
+}
+.background{
+  background:#fff9e6
+}
+.centerAlign{
+  justify-content: center;
+  align-items: center;
+  /* display: flex; */
+}
+.editIcon{
+  color: #BE783B
+}
+.card2 {
+  background: #28a745 !important;
+}
+
+.card3 {
+  background: #ffc107 !important;
+}
+
+.card4 {
+  background: #dc3545 !important;
+}
+
+.cursor {
+  cursor: pointer;
+}
+
+.offcanvas-start {
+  width: 20% !important;
+}
+
+.btn-success a {
+  text-decoration: none;
+  color: #f9fafb;
+}
+.btn-success a:hover {
+  text-decoration: none;
+  color: #f9fafb;
+}
+
+a {
+  color: unset !important;
+  text-decoration: auto !important;
+}
+
+/* Side Bar Start */
+.sidebar {
+  margin: 0;
+  padding: 0;
+  width: 200px;
+  background-color: #f1f1f1;
+  position: fixed;
+  height: 100%;
+  overflow: auto;
+}
+
+.sidebar a {
+  display: block;
+  color: black;
+  padding: 16px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.sidebar a.active {
+  background-color: #004026;
+  color: white;
+}
+
+.sidebar a:hover {
+  background-color: #004026;
+  color: white !important;
+}
+
+/* .sidebar a:hover:not(.active) {
+  background-color: #5d59aa;
+  color: white;
+} */
+
+div.content {
+  margin-left: 200px;
+  padding: 1px 16px;
+  height: 100%;
+}
+
+@media screen and (max-width: 700px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+  .sidebar a {
+    float: left;
+  }
+  div.content {
+    margin-left: 0;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .sidebar a {
+    text-align: center;
+    float: none;
+  }
+}
+
+/* Side Bar End  */
+
+/* Login Form Start */
+
+.login {
+  width: 400px;
+  margin: 16px auto;
+  font-size: 16px;
+}
+
+/* Reset top and bottom margins from certain elements */
+.login-header,
+.login p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* The triangle form is achieved by a CSS hack */
+.login-triangle {
+  width: 0;
+  margin-right: auto;
+  margin-left: auto;
+  border: 12px solid transparent;
+  border-bottom-color: #353190;
+}
+
+.login-header {
+  background: #004026;
+  padding: 20px;
+  font-size: 1.4em;
+  font-weight: normal;
+  text-align: center;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.login-container {
+  background: #ebebeb;
+  padding: 12px;
+}
+
+/* Every row inside .login-container is defined with p tags */
+.login p {
+  padding: 12px;
+}
+
+.login input {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  border-width: 1px;
+  border-style: solid;
+  padding: 16px;
+  outline: 0;
+  font-family: inherit;
+  font-size: 0.95em;
+}
+
+.login input[type="email"],
+.login input[type="password"] {
+  background: #fff;
+  border-color: #bbb;
+  color: #555;
+}
+
+/* Text fields' focus effect */
+.login input[type="email"]:focus,
+.login input[type="password"]:focus {
+  border-color: #888;
+}
+
+.login input[type="submit"] {
+  background: #004026;
+  border-color: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+.login input[type="submit"]:hover {
+  background: #004026;
+}
+
+/* Buttons' focus effect */
+.login input[type="submit"]:focus {
+  border-color: #004026;
+}
+
+/* Login Form End */
