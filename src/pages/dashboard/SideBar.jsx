@@ -1,4 +1,12 @@
 import React, { useEffect, useState } from 'react'
+import { BsSpeedometer } from 'react-icons/bs'
+import { CgProfile } from 'react-icons/cg'
+import { IoStorefrontOutline, IoDiamondOutline, IoStatsChart } from 'react-icons/io5'
+import { MdOutlineAdminPanelSettings, MdOutlineSchema } from 'react-icons/md'
+import { GiBookmarklet, GiVerticalBanner } from 'react-icons/gi'
+import { RiAdvertisementLine } from 'react-icons/ri'
+import { HiUserGroup } from "react-icons/hi2";
+import { IoMdNotificationsOutline } from "react-icons/io";
 
 
 import {
@@ -15,7 +23,7 @@ import {
   NavLink,
   Offcanvas,
 } from "react-bootstrap";
-import { Navigate,Navigation, useNavigate } from "react-router-dom";
+import { Navigate, Navigation, useLocation, useNavigate } from "react-router-dom";
 import {
   AiFillAppstore,
   AiFillDatabase,
@@ -36,193 +44,233 @@ import logozelt from '../../assets/imagesCustomer/logozelt.png'
 
 
 function SideBar({ Navigation }) {
-  const [isOpen, setIsOpen] = useState(false)
-    const [counter, setCounter] = useState(0)
-  const handleClick =(e)=>{
+  const location = useLocation();
+  const [isOpen, setIsOpen] = useState(true)
+  const [counter, setCounter] = useState(0)
+  const [dashboardData, setDashboardData] = useState({});
+  const [liveRate, setLiveRate] = useState("");
+  const [vendorDetails] = useState(
+    JSON.parse(localStorage.getItem("vendorDetails"))
+  );
+
+
+  const [userDetails, setUserDetails] = useState();
+
+  const handleClick = (e) => {
 
     // console.log(e);
-    Navigation.navigate(`/list_out`,{
-      data:e
+    Navigation.navigate(`/list_out`, {
+      data: e
     })
   }
-  
-  // let navigate = useNavigate();
-  // const [reloadPage, setReloadPage] = useState(1);
-  // const [rowData, setRowdata] = useState([]);
-  // useEffect(() => {
-  //   axios({
-  //     mathod: "GET",
-  //     url: `${baseURL}/category`,
-  //   }).then((res) => {
-  //     if (res.status == 200) {
-  //       // console.log(res.data);
-  //       setRowdata(res.data)
-  //       // console.log(res.data);
-  //     }
-  //   }).catch((err) => {
-  //     console.log(err, 'err');
-  //   })
-  // }, [reloadPage])
+  const liveRateGet = async () => {
+    // url: "http://localhost:3005/cart/live-rate",
+    try {
+      const response = await axios({
+        method: "GET",
+        url: "https://zelt-cart.moshimoshi.cloud/cart/live-rate",
+      });
 
-  // const userType = 'Admin';
-  const userType = '';
+      console.log("live rate data", response?.data);
+      setLiveRate(response?.data?.data["22kt"]);
 
-//   const AdminScreens = [{
-//     path: '/dashboard',
-//     name: 'Dashboard'
-//   },
-//   {
-//     path: '/customer',
-//     name: 'Customer'
-//   },
-//   {
-//     path: '/vendor',
-//     name: 'Vendor'
-//   },
-// ]
+      //else {}
+    } catch (error) {
+      console.log("live rate error ====> ", error);
+    }
+  };
+  const getUserDetails = async () => {
+    try {
+      // const response = await axios.get("http://localhost:3050/user", {
+      const response = await axios.get("https://zelt-auth.moshimoshi.cloud/user", {
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": localStorage.getItem("accessToken"),
+        },
+      });
+      if (response.status === 200) {
+        setUserDetails(response.data.data);
+        // setEditUserDetails(response.data.data);
 
-const VendorScreens = [{
-  path: '/vendorDashboard',
-  name: 'Dashboard'
-},
-{
-  path: '/vendorProfile',
-  name: 'Profile'
-},
-{
-  path: '/vendorStore',
-  name: 'My Store'
-},
-{
-  path: '/vendorAdmin',
-  name: 'Admin'
-},
-{
-  path: '/vendorProducts',
-  name: 'Physical Jewellery'
-},
-{
-  path: '/vendorScheme',
-  name: ' Scheme'
-},
-{
-  path: '/vendorStats',
-  name: 'Stats'
-},
-{
-  path: '/vendorBrochure',
-  name: 'Brochure'
-},
-]
+        console.log(response.data.data, "hello");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  useEffect(() => {
+    getUserDetails()
+  }, [])
+
+
+
+
+
+  const VendorScreens = [{
+    path: '/vendorDashboard',
+    name: 'Dashboard',
+    icon: <BsSpeedometer className="icons" />
+  },
+  {
+    path: '/vendorProfile',
+    name: 'Profile',
+    icon: <CgProfile className='icons' />
+  },
+  {
+    path: '/vendorStore',
+    name: 'My Store',
+    icon: <IoStorefrontOutline className='icons' />
+  },
+  // {
+  //   path: '/request',
+  //   name: 'Request',
+  //   icon: <MdOutlineAdminPanelSettings className='icons' />
+  // },
+  // {
+  //   path: '/vendorProducts',
+  //   name: 'Products',
+  //   icon: <IoDiamondOutline className='icons' />
+  // },
+  {
+    path: '/vendorScheme',
+    name: ' Scheme',
+    icon: <MdOutlineSchema className='icons' />
+  },
+  // {
+  //   path: '/vendorStats',
+  //   name: 'Stats',
+  //   icon : <IoStatsChart className='icons'/>
+  // },
+  // {
+  //   path: '/customer',
+  //   name: 'Customer',
+  //   icon: <IoStatsChart className='icons' />
+  // },
+  {
+    path: '/vendorBrochure',
+    name: 'Brochure',
+    icon: <GiBookmarklet className='icons' />
+  },
+  {
+    path: '/AddBanner',
+    name: 'Add Banner',
+    icon: <GiVerticalBanner className='icons' />
+  },
+  {
+    path: '/AddAdvertisement',
+    name: 'Promote Product',
+    icon: <RiAdvertisementLine className='icons' />
+  },
+  {
+    path: '/CustomersList',
+    name: 'Customers',
+    icon: <HiUserGroup className='icons' />
+  },
+  {
+    path: '/Notification',
+    name: 'Notification',
+    icon: <IoMdNotificationsOutline className='icons' />
+  },
+  ]
+
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+  };
+
+  useEffect(() => {
+    liveRateGet()
+  }, [])
+
+  useEffect(() => {
+    if (!vendorDetails) return; // Run only if customer exists
+
+    const fetchVendorList = () => {
+      getvendors();
+    };
+
+    // Call immediately
+    fetchVendorList();
+
+    // Set interval to call every 1 minute
+    const interval = setInterval(fetchVendorList, 60000);
+
+    // Cleanup on unmount or when customer changes
+    return () => clearInterval(interval);
+  }, [vendorDetails]);
+
+
+  const getvendors = () => {
+    axios.get(`http://localhost:3001/api/Vendor/getvendors/${vendorDetails?._id}`, {
+      headers: {
+        "x-access-token": localStorage.getItem("accessToken") // Ensure token is passed
+      }
+    })
+      .then((response) => {
+        console.log("RESPONSE DATA:", response);
+
+        if (response.status === 200) {
+          if (response.data.vendor.blockstatus === true) {
+            window.location.assign("/")
+            return;
+          }
+        } else {
+          alert(response?.data?.message || "Something went wrong!");
+        }
+      })
+      .catch((error) => {
+        console.log("Axios Error:", error.response);
+        if (error.response) {
+          alert(error.response.data.error || "Authorization failed!");
+          window.location.assign("/")
+        } else if (error.request) {
+          // If no response received (server might be down)
+          // alert("No response from server. Check your connection.");
+          console.log("No response from server. Check your connection.");
+        } else {
+          // Other errors
+          console.log("Request failed. Please try again.");
+          // alert("Request failed. Please try again.");
+        }
+      });
+  };
 
   return (
-    <div>          
-      <div className="bg-light">
-        <img src={logozelt} width="50%" height="20%" className="m-auto" />
+    <>
+      <div className={`sidebar${isOpen ? ' open' : ''}`}>
+        <div className="sidebar-header d-flex align-items-center">
+          <img src={logozelt} width="25%" height="20%" className="m-0" alt="logo" />
+          <div className='w-100 m-2'>
+            <h1 className='fs-2'>Zelt</h1>
+          </div>
+
+        </div>
+        <div className='w-100 '>
+          <div className='d-flex p-3' style={{ backgroundColor: '#dceaf8' }} >
+            <img src={userDetails?.image} width="25%" height="20%" className="m-1" />
+
+            <div>
+              <h3 className='fs-6 m-1 fw-bold'>  {userDetails?.name}</h3>
+              <h3 className=' m-1 fw-bold' style={{ fontSize: '15px' }}>{userDetails?.email}</h3>
+            </div>
+          </div>
+        </div>
+        <div className="sidebar-content mt-4">
+          {VendorScreens.map((nav, i) => (
+            <p key={i} className={`cursor fs-6 pt-2 pb-1 px-2 m-0 fw-bold ${location.pathname === nav.path ? 'active' : ''}`}>
+              <Link to={nav?.path} className="p-1">
+                {nav?.icon} {nav?.name}
+              </Link>
+            </p>
+          ))}
+        </div>
+        <div className='d-flex justify-content-center mt-5 align-content-center' style={{ backgroundColor: '#d9d6a9' }}>
+          <div className='mt-2'>
+            <h1 className='fs-6 fw-bold w-100 m-1'>Live Rate</h1>
+            <p className='fw-bold text-danger w-100 '>{liveRate}</p>
+          </div>
+        </div>
       </div>
-       <div>
-        {/*<p className=" cursor fs-5">
-          
-          <Link to="/dashboard">Dashboard </Link>
-        </p>
-        <p className=" cursor fs-5">
-          <Link to="/career-list" className="">
-            Career{" "}
-          </Link>
-        </p>
-        <p className=" cursor fs-5">
-          <Link to="/blog-list" className="">
-            Articles{" "}
-          </Link>
-        </p>
-        <p className=" cursor fs-5">
-          <Link to="/properties-list" className="">
-            Properties{" "}
-          </Link>
-        </p>    
-        <p className=" cursor fs-5">
-          <Link to="/user_list" className="">
-            User List{" "}
-          </Link>
-        </p>    
-        <p className=" cursor fs-5">
-          <Link to="/news-list" className="">
-            News{" "}
-          </Link>
-        </p>
-        <p className=" cursor fs-5">
-          <Link to="/banner_img_list" className="">
-            Banner Image{" "}
-          </Link>
-        </p>
-        <p className=" cursor fs-5">
-          <Link to="/award-list" className="">
-            Awards{" "}
-          </Link>
-        </p>
-        <p className=" cursor fs-5">
-          <Link to="/services-list" className="">
-            Services{" "}
-          </Link>
-        </p>
-        <p className=" cursor fs-5">
-          <Link to="/leadership-list" className="">
-            Leadership{" "}
-          </Link>
-        </p>
-        <p className=" cursor fs-5">
-          <Link to="/executives-list" className="">
-            Executives{" "}
-          </Link>
-        </p>
-        <p className=" cursor fs-5">
-          <Link to="/insights-list" className="">
-            Insights{" "}
-          </Link>
-        </p>
-        <p className=" cursor fs-5">
-          <Link to="/casestudy-list" className="">
-            Case Study{" "}
-          </Link>
-        </p>
-        <p className=" cursor fs-5">
-          <Link to="/propertyexpert-list" className="">
-            Property Experts{" "}
-          </Link>
-        </p>
-        <p className=" cursor fs-5">
-          <Link to="/privay_list" className="">
-            Privacy And Policy{" "}
-          </Link>
-        </p> */}
-        {/* {userType=== '' && //userType=== 'Admin'
-          <>
-          {AdminScreens.map((nav, i) => {
-            return (
-              <p key={i} className=" cursor fs-5">
-                <Link to={nav?.path} className="">
-                  {`${nav?.name} `}
-                </Link>
-              </p>
-            )
-          })}
-          </>
-        } */}
-        {userType=== '' && //userType=== 'Vendor'
-          <>
-          {VendorScreens.map((nav, i) => {
-            return (
-              <p key={i} className=" cursor fs-5">
-                <Link to={nav?.path} className="">
-                  {`${nav?.name} `}
-                </Link>
-              </p>
-            )
-          })}
-          </>
-        }
-      </div>
-    </div>
+    </>
   );
 }
 // }

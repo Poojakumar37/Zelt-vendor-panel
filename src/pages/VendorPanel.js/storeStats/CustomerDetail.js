@@ -1,10 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import SideBar from '../../dashboard/SideBar'
 import FirstNavbar from '../../dashboard/FirstNavbar'
 import { Card, Row, Col, Figure, Table, Button, Modal, Form } from 'react-bootstrap'
 import Plot from 'react-plotly.js'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faEye } from "@fortawesome/free-solid-svg-icons";
+import axios from 'axios'
+import { useSearchParams } from "react-router-dom";
 
 const image = require('../../../assets/imagesCustomer/image.png');
 
@@ -12,6 +14,9 @@ function CustomerDetail() {
     const [jewelleryModal, setJewelleryModal] = useState(false)
     const [coinModal, setCoinModal] = useState(false)
     const [selection, setSelection] = useState('1')
+    const [userData, setUserData] = useState([{ amount: 0, installmentsPaid: [], scheme: "", user: {} }])
+    const [schemeList, setSchemeList] = useState([])
+    const [productList, setProductList] = useState([])
 
     const handleCloseModal = () => setJewelleryModal(false)
     const handleShowModal = () => setJewelleryModal(true)
@@ -19,6 +24,40 @@ function CustomerDetail() {
     const handleCloseModal1 = () => setCoinModal(false)
     const handleShowModal1 = () => setCoinModal(true)
 
+    let [searchParams, setSearchParams] = useSearchParams();
+    let id = searchParams.get("id")
+    console.log("CUSTOMER ID--->", id)
+    const getAdminData = async () => {
+        const data = await axios.get(`https://zelt-order.moshimoshi.cloud/order/transactions?userId=` + id,
+            {
+                headers: {
+                    "x-access-token": localStorage.getItem("accessToken"),
+                },
+            }
+        )
+            .catch((error) => {
+                console.log("error ==>", error);
+            });
+        if (data.status == 200) {
+            setUserData(data.data.data)
+            let schemes = []
+            let products = []
+            data.data.data.map(x => {
+                if (x.type == "scheme") schemes.push(x)
+                else {
+                    products.push(x)
+                    console.log("PRODUCT--->",x)
+                }
+            })
+            setSchemeList(schemes)
+            setProductList(products)
+        }
+
+        console.log("admin details  ===> ", data);
+    }
+    useEffect(() => {
+        getAdminData();
+    }, [])
     const onGoldSelect = (e) => {
         setSelection(e.target.value)
     }
@@ -31,43 +70,24 @@ function CustomerDetail() {
             <div class="content">
                 <div className="container">
                     <FirstNavbar />
-                    <h3 className='headertext'>Customer Details:</h3>
+                    <h3 className='headertext'>Customer Details</h3>
                     <div>
                         <Card className='p-2'>
-                            {/* <Row>
-                                <h3>Ear Rings</h3>
-                                <p>Celebrate the mix of glossy gold and dazzling ...</p>
-                            </Row> */}
                             <Row>
-                                {/* <Col md={2}>
-                                    <Figure>
-                                        <Figure.Image
-                                            width={100}
-                                            height={80}
-                                            src={image}
-                                        />
-                                    </Figure>
-                                </Col> */}
                                 <Col md={2}>
                                     <p>Name:</p>
                                     <p>Phone Number:</p>
                                     <p>Email:</p>
-                                    <p>Address:</p>
                                 </Col>
                                 <Col md={3}>
-                                    <p>Rahul</p>
-                                    <p>+91 897652435</p>
-                                    <p>rahul@gmail.com</p>
-                                    <p>Cecilia Chapman
-                                        711-2880 Nulla St.
-                                        Mankato Mississippi 96522
-                                        (257) 563-7401</p>
-
+                                    <p>{userData[0]?.user?.name}</p>
+                                    <p>{userData[0]?.user?.phone}</p>
+                                    <p>{userData[0]?.user?.email}</p>
                                 </Col>
                             </Row>
                             <hr />
                             <Card className='p-2'>
-                                <h3 className='text1'>Active Schemes:</h3>
+                                <h3 className='text1'>Active Schemes</h3>
                                 <Table striped bordered hover>
                                     <thead>
                                         <tr>
@@ -75,75 +95,28 @@ function CustomerDetail() {
                                             <th>Scheme Name</th>
                                             <th>Installment Amount</th>
                                             <th>Total Investment</th>
-                                            <th>Outstanding</th>
-                                            <th>Tenure</th>
+                                            {/* <th>Outstanding</th>
+                                            <th>Tenure</th> */}
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>Gold Harvest (11+1)</td>
-                                            <td>1500 /-</td>
-                                            <td>5000 /-</td>
-                                            <td>9000</td>
-                                            <td>12 months</td>
-                                        </tr>
-                                        <tr>
-                                            <td>2</td>
-                                            <td>Gold Harvest (11+1)</td>
-                                            <td>1500 /-</td>
-                                            <td>5000 /-</td>
-                                            <td>9000</td>
-                                            <td>12 months</td>
-                                        </tr>
-                                        <tr>
-                                            <td>3</td>
-                                            <td>Gold Harvest (11+1)</td>
-                                            <td>1500 /-</td>
-                                            <td>5000 /-</td>
-                                            <td>9000</td>
-                                            <td>12 months</td>
-                                        </tr>
-                                    </tbody>
+                                    {
+                                        schemeList && schemeList.map((c, i) => (
+                                            <tr key={i}>
+                                                <td>{i + 1}</td>
+                                                <td> <div> {c.scheme._id}</div></td>
+                                                <td>{c.amount}</td>
+                                                <td> {(c.installmentsPaid.length) * c.amount}</td>
+                                                {/* <td>
+                                                </td>
+                                                <td>
+                                                </td> */}
+                                            </tr>
+                                        ))
+                                    }
                                 </Table>
                                 <hr />
-                                <h3 className='text1'>Completed Schemes:</h3>
-                                <Table striped bordered hover>
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Scheme Name</th>
-                                            <th>Amount Investment</th>
-                                            <th>Tenure</th>
-                                            <th>Completed Date</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>Gold Harvest (11+1)</td>
-                                            <td>12500 /-</td>
-                                            <td>12 months</td>
-                                            <td>12/10/2020</td>
-                                        </tr>
-                                        <tr>
-                                            <td>2</td>
-                                            <td>Gold Harvest (11+1)</td>
-                                            <td>12500 /-</td>
-                                            <td>12 months</td>
-                                            <td>12/10/2020</td>
-                                        </tr>
-                                        <tr>
-                                            <td>3</td>
-                                            <td>Gold Harvest (11+1)</td>
-                                            <td>12500 /-</td>
-                                            <td>12 months</td>
-                                            <td>12/10/2020</td>
-                                        </tr>
-                                    </tbody>
-                                </Table>
-                                <hr />
-                                <h3 className='text1'>Jewellery Purchased:</h3>
+                                <h3 className='text1'>Jewellery Purchased</h3>
+
                                 <Table striped bordered hover>
                                     <thead>
                                         <tr>
@@ -157,57 +130,25 @@ function CustomerDetail() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>1</td>
-                                            <td>Ear ring</td>
-                                            <td>
-                                                <Figure>
-                                                    <Figure.Image
-                                                        width={100}
-                                                        height={80}
-                                                        src={image}
-                                                    />
-                                                </Figure>
-                                            </td>
-                                            <td>20,000 /-</td>
-                                            <td>5 gms</td>
-                                            <td>24</td>
-                                            <td>12/10/2020</td>
-                                        </tr>
-                                        <tr>
-                                            <td>2</td>
-                                            <td>Ear ring</td>
-                                            <td>
-                                                <Figure>
-                                                    <Figure.Image
-                                                        width={100}
-                                                        height={80}
-                                                        src={image}
-                                                    />
-                                                </Figure>
-                                            </td>
-                                            <td>20,000 /-</td>
-                                            <td>5 gms</td>
-                                            <td>24</td>
-                                            <td>12/10/2020</td>
-                                        </tr>
-                                        <tr>
-                                            <td>3</td>
-                                            <td>Ear ring</td>
-                                            <td>
-                                                <Figure>
-                                                    <Figure.Image
-                                                        width={100}
-                                                        height={80}
-                                                        src={image}
-                                                    />
-                                                </Figure>
-                                            </td>
-                                            <td>20,000 /-</td>
-                                            <td>5 gms</td>
-                                            <td>24</td>
-                                            <td>12/10/2020</td>
-                                        </tr>
+                                        {productList && productList.map((c, i) => (
+                                            <tr>
+                                                <td>{i+1}</td>
+                                                <td>{c?.products[0]?.title}</td>
+                                                <td>
+                                                    <Figure>
+                                                        <Figure.Image
+                                                            width={100}
+                                                            height={80}
+                                                            src={c?.products[0]?.image[0]}
+                                                        />
+                                                    </Figure>
+                                                </td>
+                                                <td>{c?.products[0]?.price}</td>
+                                                <td>{c?.products[0]?.weight}</td>
+                                                <td>24</td>
+                                                <td>{new Date(c?.createdAt).toLocaleDateString("en-US")}</td>
+                                            </tr>))}
+
                                     </tbody>
                                 </Table>
                             </Card>

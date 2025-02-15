@@ -1,11 +1,14 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import SideBar from '../../dashboard/SideBar'
 import FirstNavbar from '../../dashboard/FirstNavbar'
-import { Card, Row, Col, Figure, Table, Button, Modal, Form } from 'react-bootstrap'
+import { Card, Row, Col, Figure, Table, Button, Modal, Form, InputGroup } from 'react-bootstrap'
 import Plot from 'react-plotly.js'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faEye } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios'
+import { Chart } from "react-google-charts";
+import moment from 'moment'
 
 
 const image = require('../../../assets/imagesCustomer/image.png');
@@ -13,159 +16,202 @@ const image = require('../../../assets/imagesCustomer/image.png');
 function Stats() {
   const [jewelleryModal, setJewelleryModal] = useState(false)
   const [coinModal, setCoinModal] = useState(false)
-  const [selection, setSelection] = useState('1')
-
   const navigate = useNavigate();
-
+  const [brochureReqsData, setBrochureReqsData] = useState([])
   const handleCloseModal = () => setJewelleryModal(false)
   const handleShowModal = () => setJewelleryModal(true)
 
   const handleCloseModal1 = () => setCoinModal(false)
   const handleShowModal1 = () => setCoinModal(true)
 
-  const onGoldSelect = (e) => {
-    setSelection(e.target.value)
-  }
+  const [data, setData] = useState([]);
+  const [SchemesSold, setSchemesSold] = useState([])
+  const [ShopList, setShopList] = useState([])
+  const [selectedShop, setselectedShop] = useState()
+  const [vendorDetails] = useState(
+    JSON.parse(localStorage.getItem("vendorDetails"))
+  );
+
+
+  useEffect(() => {
+    if (ShopList?.length > 0) {
+      setselectedShop(ShopList[0]?._id)
+    }
+  }, [ShopList])
+
+  useEffect(() => {
+    if (vendorDetails) {
+      getShopList()
+    }
+  }, [vendorDetails])
+
+  useEffect(() => {
+    if (selectedShop) {
+      investData()
+    }
+  }, [selectedShop])
+
+
+
+
+  const getShopList = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:3001/api/Stores/getAllStores",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": localStorage.getItem("accessToken"),
+          },
+        }
+      );
+      if (response.status === 200) {
+        setShopList(response?.data?.Stores?.filter((item) => item?.deleted === false && item?.VendorID?._id == vendorDetails?._id));
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const investData = () => {
+    axios.get(`http://localhost:3001/api/user/getSchemeOrderStoresID/${selectedShop}`, {
+      headers: {
+        "x-access-token": localStorage.getItem("accessToken"),
+      }
+    }).then((response) => {
+      if (response.status === 200) {
+        console.log("API Response:", response.data.SchemeOrder);  // Check the API data
+        setSchemesSold(response.data.SchemeOrder);
+      } else {
+        console.error("Error fetching data:", response);
+        setSchemesSold([]);  // Ensure state updates
+      }
+    }).catch((error) => {
+      console.error("Axios Error:", error);
+      setSchemesSold([]);
+    });
+  };
+
+
+
+  useEffect(() => {
+    if (SchemesSold?.length > 0) {
+      const filteredSchemes = SchemesSold.filter(item => {
+        const startDate = moment(item?.StartDate);
+        return startDate.isSameOrAfter(moment().subtract(7, 'days'), 'day');
+      });
+
+      if (filteredSchemes.length > 0) {
+        const formattedData = filteredSchemes.map(item => {
+          // const dateP = moment(item?.StartDate).format("DD-MM-YYYY");
+          // const dateParts = dateP.split('-');
+          // const formattedDate = `${dateParts[1]}/${dateParts[2]}/${dateParts[0].substring(2)}`;
+          const formattedDate = moment(item?.StartDate).format("DD/MM/YYYY");
+          return [formattedDate, item?.Investment[0]?.Amount];
+        });
+
+        const chartData = [["Year", "Sales"], ...formattedData];
+        setData(chartData);
+
+        console.log(chartData, "chartData");
+      }
+    } else {
+      setData([])
+    }
+  }, [SchemesSold]);
+
+
+
+
+  const option = {
+    title: "Chart showing Schemes sold in last 7 days",
+    curveType: "function",
+    legend: { position: "bottom" },
+    chartEvents: [
+      {
+        eventName: "ready",
+        callback: ({ chartWrapper }) => {
+          const chart = chartWrapper.getChart();
+          console.log("Callback triggered");
+          chart.container.style.backgroundColor = "lightgrey"; // Set your desired background color
+        },
+      },
+    ],
+  };
+
+
+  console.log("SchemesSold", SchemesSold);
 
   return (
     <div>
-      <div class="sidebar">
-        <SideBar />
-      </div>
-      <div class="content">
-        <div className="container">
-          <FirstNavbar />
-          <h3 className='headertext'>Store Statestics</h3>
+
+      <div className='' style={{ marginTop: 15 }}>
+        <Card className='p-2 '>
           <div>
-            <Card className='p-2'>
-              <Row>
-                <Col md={4}>
-                  <h3 className='headertext'>Jewellery Sold:</h3>
-                </Col>
-                <Col md={4}>
-                  <Button onClick={() => navigate('/JewellerySold')} variant="warning">View More</Button>
-                </Col>
-              </Row>
-              <Row>
-                <Col md={9}>
-                  <Plot
-                    data={[
-                      {
-                        x: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                        y: [19, 14, 22, 14, 16, 19, 15, 14, 10, 12, 12, 16],
-                        type: 'bar',
-                      }
-
-                    ]}
-                    layout={{
-                      width: '80%', height: 440, title: 'Chart showing Jewellery sold in the year 2020', xaxis: {
-                        tickangle: -45
-                      },
-                    }}
-                  />
-                </Col>
-              </Row>
-              <Row>
-                <Col md={4}>
-                  <h3 className='headertext'>Schemes Sold:</h3>
-                </Col>
-                <Col md={4}>
-                  <Button onClick={() => navigate('/SchemesSold')} variant="warning">View More</Button>
-                </Col>
-              </Row>
-              <Row>
-                <Col md={9}>
-                  <Plot
-                    data={[
-                      {
-                        x: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                        y: [19, 14, 22, 14, 16, 19, 15, 14, 10, 12, 12, 16],
-                        type: 'bar',
-                      }
-
-                    ]}
-                    layout={{
-                      width: '80%', height: 440, title: 'Chart showing Schemes sold in the year 2020', xaxis: {
-                        tickangle: -45
-                      },
-                    }}
-                  />
-                </Col>
-              </Row>
-              <hr />
-              <Row>
-                    <Col md={4}>
-                    <h3 className='headertext'>Brochure Requests:</h3>
-                    </Col>
-                    <Col md={3}>
-                      <Button onClick={() => navigate('/BrochureRequest')}  variant="warning">View More</Button>
-                    </Col>
-                  </Row>
-              <Row>
-                <Col md={3}>
-                  <div style={{ borderRadius: 50, height: 100, width: 100, border: '2px solid #BE783B', justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
-                    <h1 style={{}}>
-                      20
-                    </h1>
-                  </div>
-                </Col>
-              </Row>
-              <hr />
-              <Card className='p-2'>
-                <h3 className='text1'>Customer List:</h3>
-                <Table striped bordered hover>
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Customer Name</th>
-                      <th>Phone Number</th>
-                      <th>E-mail Id</th>
-                      <th>Edit</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>Ramu</td>
-                      <td>8765456787</td>
-                      <td>ram@gmail.com</td>
-                      <td>
-                        <FontAwesomeIcon
-                          onClick={() => navigate('/CustomerDetail')}
-                          icon={faEye} className="editIcon"
-                        />
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>2</td>
-                      <td>Ramu</td>
-                      <td>8765456787</td>
-                      <td>ram@gmail.com</td>
-                      <td>
-                        <FontAwesomeIcon
-                          onClick={() => navigate('/CustomerDetail')}
-                          icon={faEye} className="editIcon"
-                        />
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>3</td>
-                      <td>Ramu</td>
-                      <td>8765456787</td>
-                      <td>ram@gmail.com</td>
-                      <td>
-                        <FontAwesomeIcon
-                          onClick={() => navigate('/CustomerDetail')}
-                          icon={faEye} className="editIcon"
-                        />
-                      </td>
-                    </tr>
-                  </tbody>
-                </Table>
-              </Card>
-            </Card>
+            {/* <h6 className="text ">Live Rate</h6> */}
+            <div
+              style={{
+                display: "flex",
+              }}
+            >
+              {/* <p>{liveRate}</p> */}
+              <Form.Select
+                aria-label="Default select example"
+                size={"sm"}
+                className="selectsizesmall w-25 m-auto"
+                onChange={(e) => setselectedShop(e.target.value)}
+                defaultValue={localStorage.getItem("shopId")} // Set the default value here
+              >
+                {ShopList?.map((shop) => (
+                  <option key={shop._id} value={shop._id}>
+                    {shop.name}
+                  </option>
+                ))}
+              </Form.Select>
+            </div>
           </div>
-        </div>
+          <hr />
+          <Row>
+            <Col md={4}>
+              <h3 className='headertext'>Schemes Sold</h3>
+            </Col>
+            <Col md={4}>
+              <Button onClick={() => navigate('/SchemesSold')} variant="warning">View More</Button>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={9}>
+              {data?.length > 0 ?
+                <Chart
+                  chartType="LineChart"
+                  width="100%"
+                  height="400px"
+                  data={data}
+                  options={option}
+                /> : <p>No Schemes sold in last 7 days</p>}
+            </Col>
+          </Row>
+          {/* <hr /> */}
+          {/* <Row>
+            <Col md={4}>
+              <h3 className='headertext'>Brochure Requests</h3>
+            </Col>
+            <Col md={3}>
+              <Button onClick={() => navigate('/BrochureRequest')} variant="warning">View More</Button>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={3}>
+              <div style={{ borderRadius: 50, height: 100, width: 100, border: '2px solid #BE783B', justifyContent: 'center', alignItems: 'center', display: 'flex' }}>
+                <h1 style={{}}>
+                  {brochureReqsData?.length}
+                </h1>
+              </div>
+            </Col>
+          </Row> */}
+          <hr />
+
+        </Card>
       </div>
       <Modal
         show={jewelleryModal}
@@ -175,7 +221,7 @@ function Stats() {
         centered
         size="lg"
       >
-        <h4 className='headertext text-center'>Add/Edit Admin Details:</h4>
+        <h4 className='headertext text-center'>Add/Edit Admin Details</h4>
         <Modal.Body>
           <Row>
             <Col md={6}>
@@ -262,7 +308,7 @@ function Stats() {
                     className="selectsizesmall"
                     onChange={() => { }}
                   >
-                    <option >Select Store</option>
+                    {/* <option >Select Store</option> */}
                     <option value="1">hari</option>
                     <option value="2">gopal</option>
                     <option value="3">mani</option>
@@ -287,7 +333,7 @@ function Stats() {
                     className="selectsizesmall"
                     onChange={() => { }}
                   >
-                    <option >Select Payment Option</option>
+                    {/* <option >Select Payment Option</option> */}
                     <option value="1">Offline</option>
                     <option value="2">Online</option>
                   </Form.Select>
@@ -362,7 +408,7 @@ function Stats() {
         centered
         size="lg"
       >
-        <h4 className='headertext text-center'>Add/Edit Bar/Coins:</h4>
+        <h4 className='headertext text-center'>Add/Edit Bar/Coins</h4>
         <Modal.Body>
           <Row>
             <Col md={6}>
@@ -433,7 +479,7 @@ function Stats() {
             </Col>
             <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>Select Stores</Form.Label>
+                <Form.Label>Select Store</Form.Label>
                 <div className="leftedge d-flex justify-content-space">
                   <Form.Select
                     aria-label="Default select example"
@@ -441,7 +487,7 @@ function Stats() {
                     className="selectsizesmall"
                     onChange={() => { }}
                   >
-                    <option >Select Store</option>
+                    {/* <option >Select Store</option> */}
                     <option value="1">Sri Vinayaka Jewellers, Mumbai</option>
                     <option value="2">Sri Vinayaka Jewellers, Bengalore</option>
                     <option value="3">Sri Vinayaka Jewellers, Jay Nagar</option>
@@ -500,7 +546,7 @@ function Stats() {
                     className="selectsizesmall"
                     onChange={() => { }}
                   >
-                    <option >Select Payment Option</option>
+                    {/* <option >Select Payment Option</option> */}
                     <option value="1">Offline</option>
                     <option value="2">Online</option>
                   </Form.Select>

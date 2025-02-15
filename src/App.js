@@ -21,7 +21,15 @@ import SchemesSold from "./pages/VendorPanel.js/storeStats/SchemesSold";
 import BrochureRequest from "./pages/VendorPanel.js/storeStats/BrochureRequest";
 import CustomerDetail from "./pages/VendorPanel.js/storeStats/CustomerDetail";
 import ProtectedRoute from './pages/Routers/ProtectedRoute';
-
+import ChooseScheme from "./pages/VendorPanel.js/manageSchemes/ChooseScheme";
+import AddBanner from "./pages/VendorPanel.js/addBanner/AddBanner";
+import AddAdvertisement from "./pages/VendorPanel.js/addAdvertisement/AddAdvertisement";
+import Request from "./pages/VendorPanel.js/Request/Request";
+import Customer from "./pages/VendorPanel.js/Customer/Customer";
+import ForgotPassword from './pages/auth/ForgotPassword'
+import CustomersList from "./pages/VendorPanel.js/Customers/CustomersList";
+import CustomersScheme from "./pages/VendorPanel.js/Customers/CustomersScheme";
+import Notification from "./pages/VendorPanel.js/Notification/Notification";
 function App() {
   return (
     <BrowserRouter>
@@ -100,6 +108,22 @@ function App() {
           }
         />
         <Route
+          path="/CustomersList"
+          element={
+            <ProtectedRoute>
+              <CustomersList />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/CustomersScheme"
+          element={
+            <ProtectedRoute>
+              <CustomersScheme />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/JewellerySold"
           element={
             <ProtectedRoute>
@@ -108,7 +132,7 @@ function App() {
           }
         />
         <Route
-          path="/Jewellery"
+          path="/JewelleryDetail"
           element={
             <ProtectedRoute>
               <JewelleryDetail />
@@ -139,7 +163,71 @@ function App() {
             </ProtectedRoute>
           }
         />
-       
+        <Route
+          path="/CustomerDetail"
+          element={
+            <ProtectedRoute>
+              <CustomerDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/ChooseScheme"
+          element={
+            <ProtectedRoute>
+              <ChooseScheme />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/AddBanner"
+          element={
+            <ProtectedRoute>
+              <AddBanner />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/AddAdvertisement"
+          element={
+            <ProtectedRoute>
+              <AddAdvertisement />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/request"
+          element={
+            <ProtectedRoute>
+              <Request />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/customer"
+          element={
+            <ProtectedRoute>
+              <Customer />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/forgotpassword"
+          element={
+            <ProtectedRoute>
+              <ForgotPassword />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/Notification"
+          element={
+            <ProtectedRoute>
+              <Notification />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   )

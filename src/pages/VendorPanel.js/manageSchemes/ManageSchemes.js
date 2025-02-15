@@ -1,31 +1,178 @@
-import React, { useState } from 'react'
-import SideBar from '../../dashboard/SideBar'
-import FirstNavbar from '../../dashboard/FirstNavbar'
-import { Card, Row, Col, Figure, Table, Button, Modal, Form } from 'react-bootstrap'
-import Plot from 'react-plotly.js'
+import React, { useState, useEffect } from "react";
+import SideBar from "../../dashboard/SideBar";
+import FirstNavbar from "../../dashboard/FirstNavbar";
+import { Card, Row, Col, Table, Button, Modal, Form } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
+import AuthServices from "../../authServices/AuthServices";
+import axios from "axios";
+import { toast } from "react-toastify";
 
-const image = require('../../../assets/imagesCustomer/image.png');
+const image = require("../../../assets/imagesCustomer/image.png");
 
 function ManageSchemes() {
-
   const navigate = useNavigate();
+  const [schemeList, setSchemeList] = useState([]);
+  const [vendorDetails] = useState(
+    JSON.parse(localStorage.getItem("vendorDetails"))
+  );
 
-  const [jewelleryModal, setJewelleryModal] = useState(false)
-  const [coinModal, setCoinModal] = useState(false)
-  const [selection, setSelection] = useState('1')
 
-  const handleCloseModal = () => setJewelleryModal(false)
-  const handleShowModal = () => setJewelleryModal(true)
 
-  const handleCloseModal1 = () => setCoinModal(false)
-  const handleShowModal1 = () => setCoinModal(true)
 
-  const onGoldSelect = (e) => {
-    setSelection(e.target.value)
+
+  const [EditModal, setEditModal] = useState(false);
+  const [shopdetails, setshopdetails] = useState({})
+  const handleCloseEditModal = () => setEditModal(false);
+  const handleShowEditModal = (shop) => {
+    setEditModal(true);
+    setshopdetails(shop)
   }
+
+
+  const [AmountArry, setAmountArry] = useState([])
+  const [Amount, setAmount] = useState()
+  const [Activated, setActivated] = useState()
+  const [Popular, setPopular] = useState()
+  const [Duration, setDuration] = useState()
+  const [discountPercentage, setdiscountPercentage] = useState()
+  const [RedeemType, setRedeemType] = useState()
+  const [description, setdescription] = useState()
+  const [termcondition, settermcondition] = useState()
+
+
+  const [checkedDuration, setCheckedDuration] = useState();
+
+  const handleDuration = (value) => {
+    console.log("setCheckedDuration ee", value);
+    setCheckedDuration(value);
+  };
+
+  const addAmount = () => {
+    if (!Amount) {
+      alert("Please enter amount");
+    } else {
+      const newAmountObj = { Amount: Number(Amount) };
+      setAmountArry([...AmountArry, newAmountObj]);
+      setAmount("");
+    }
+  };
+  useEffect(() => {
+    // getUserData();
+    // getVendorData();
+    getAllScheme()
+  }, []);
+
+  const getUserData = async () => {
+    try {
+      const userData = await AuthServices.getDataUser("/user");
+      // console.log("userDataaaaaaa", userData);
+      if (userData?.error === false) {
+      }
+    } catch (e) {
+      console.log("error ==>", e);
+    }
+  };
+
+  const shopId = localStorage.getItem("vendorData");
+  const getVendorData = async () => {
+    // const schemeDisplay = await AuthServices.getDataProduct(
+    //   `/scheme/all/${id}`
+    // );
+    const id = localStorage.getItem("shopId");
+    const schemeData = await AuthServices.getDataProduct(`/scheme/all/${id}`);
+
+    console.log("data1", schemeData);
+    setSchemeList(schemeData?.data);
+  };
+
+
+  const getAllScheme = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:3001/api/Scheme/getAllScheme",
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "x-access-token": localStorage.getItem("accessToken"),
+          },
+        }
+      );
+      if (response.status === 200) {
+        setSchemeList(response?.data?.Scheme?.filter((item) => item?.deleted === false && item?.
+          VendorID == vendorDetails?._id));
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const editStore = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("schemeId", shopdetails?._id);
+      formData.append("Schemename", shopdetails?.Schemename);
+      formData.append("Amount", AmountArry?.length > 0 ? JSON.stringify(AmountArry) : JSON.stringify(shopdetails?.Amount)); // Fixed
+      formData.append(
+        "duration",
+        JSON.stringify({
+          customerTime: checkedDuration ? checkedDuration : shopdetails?.duration.customerTime, vendorTime: 1
+        })
+      );
+      formData.append("Activated", Activated ? Activated : shopdetails?.Activated);
+      formData.append("Popular", Popular ? Popular : shopdetails?.Popular);
+      formData.append("DiscountType", shopdetails?.DiscountType);
+      formData.append("DiscountPercentage", discountPercentage ? discountPercentage : shopdetails?.DiscountPercentage);
+      formData.append("RedeemAt", RedeemType ? RedeemType : shopdetails?.RedeemAt);
+      formData.append("Description", description ? description : shopdetails?.Description);
+      formData.append("TermsConditions", termcondition ? termcondition : shopdetails?.TermsConditions);
+      const schemeCreation = await axios.patch(
+        `http://localhost:3001/api/Scheme/editScheme`,
+        formData,
+        {
+          headers: {
+            "x-access-token": localStorage.getItem("accessToken"),
+          },
+        }
+      );
+
+      if (schemeCreation?.status === 200) {
+        toast.success("Scheme edited successfully");
+        getAllScheme()
+        handleCloseEditModal()
+      }
+    } catch (error) {
+      console.error("Error creating scheme:", error);
+      toast.error("Scheme creation failed");
+    }
+  };
+
+  const deleteScheme = async (id) => {
+    if (window.confirm("Are you sure you want to delete...?")) {
+      const data = await axios
+        .patch(`http://localhost:3001/api/Scheme/deleteScheme/${id}`, {
+          headers: {
+            "x-access-token": localStorage.getItem("accessToken"),
+          },
+        })
+        .catch((error) => {
+          console.log("error ==>", error);
+        });
+      console.log("store updated  ===> ", data);
+      if (data.status === 200) {
+        toast.success("Scheme deleted successfully", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          theme: "light",
+        });
+        getAllScheme()
+      }
+    }
+  };
+  console.log("shopdetails", shopdetails);
 
   return (
     <div>
@@ -35,27 +182,35 @@ function ManageSchemes() {
       <div class="content">
         <div className="container">
           <FirstNavbar />
-          <h3 className='headertext'>Schemes</h3>
+          <h3 className="headertext">Schemes</h3>
           <div>
-            <Card className='p-2'>
+            <Card className="p-2">
               <Row>
                 <Col md={4}>
-                  <h3 className='headertext'>Manage Schemes:</h3>
+                  {/* <h3 className="headertext">Manage Schemes:</h3> */}
                 </Col>
               </Row>
               <Row>
+                {/* <Col md={4}>
+                  <Button
+                    variant="outline-warning"
+                    onClick={() => navigate("/ChooseScheme")}
+                  >
+                    Choose a Scheme Template
+                  </Button>
+                </Col> */}
                 <Col md={4}>
-                  {/* <Button>Choose a Scheme Template</Button> */}
-                  <Button variant="outline-warning">Choose a Scheme Template</Button>
-                </Col>
-                <Col md={4}>
-                  {/* <Button>Create Your own Scheme</Button> */}
-                  <Button variant="outline-warning" onClick={() => navigate('/CreateScheme')} >Create Your own Scheme</Button>
+                  <Button
+                    variant="outline-warning"
+                    onClick={() => navigate("/CreateScheme")}
+                  >
+                    Create Your own Scheme
+                  </Button>
                 </Col>
               </Row>
               <hr />
-              <Card className='p-2'>
-                <h3 className='text1'>Schemes List:</h3>
+              <Card className="p-2">
+                <h3 className="text1">Schemes List</h3>
                 <Table striped bordered hover>
                   <thead>
                     <tr>
@@ -64,45 +219,40 @@ function ManageSchemes() {
                       <th>Min Amount</th>
                       <th>Tenure</th>
                       <th>Edit</th>
+                      <th>Delete</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>Swarna Gold Plan</td>
-                      <td>RS. 1,000 /-</td>
-                      <td>(6 + 1)</td>
-                      <td>
-                        <FontAwesomeIcon
-                          onClick={() => navigate('/CreateScheme')}
-                          icon={faEdit} className="editIcon"
-                        />
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>2</td>
-                      <td>Swarna Gold Plan</td>
-                      <td>RS. 1,000 /-</td>
-                      <td>(6 + 1)</td>
-                      <td>
-                        <FontAwesomeIcon
-                          onClick={() => navigate('/CreateScheme')}
-                          icon={faEdit} className="editIcon"
-                        />
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>3</td>
-                      <td>Swarna Gold Plan</td>
-                      <td>RS. 1,000 /-</td>
-                      <td>(6 + 1)</td>
-                      <td>
-                        <FontAwesomeIcon
-                          onClick={() => navigate('/CreateScheme')}
-                          icon={faEdit} className="editIcon"
-                        />
-                      </td>
-                    </tr>
+                    {schemeList?.map((scheme, i) => (
+                      <tr key={i}>
+                        <td>{i + 1}</td>
+                        <td>{scheme?.Schemename}</td>
+
+                        <td> {scheme?.Schemename !== "VINAYAKA's GOLD JAR" ? (<>RS. {scheme?.Amount[0]?.Amount} /- </>) : "No Amount limit"}</td>
+                        <td>
+                          {scheme?.Schemename !== "VINAYAKA's GOLD JAR" ? (<> ({scheme?.duration?.customerTime} +{" "}
+                            {scheme?.duration?.vendorTime})</>) : "No Time limit"}
+                        </td>
+                        <td>
+                          <FontAwesomeIcon
+                            onClick={() => handleShowEditModal(scheme)}
+                            icon={faEdit}
+                            className="editIcon"
+                          />
+                        </td>
+                        <td>
+                          <FontAwesomeIcon
+                            icon={faTrash}
+                            className="editIcon"
+                            style={{ color: "red" }}
+                            value="edit"
+                            onClick={(e) => {
+                              deleteScheme(scheme._id);
+                            }}
+                          />
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </Table>
               </Card>
@@ -110,359 +260,353 @@ function ManageSchemes() {
           </div>
         </div>
       </div>
-      {/* <Modal
-        show={jewelleryModal}
-        onHide={handleCloseModal}
+      <Modal
+        show={EditModal}
+        onHide={handleCloseEditModal}
         backdrop="static"
         keyboard={false}
         centered
         size="lg"
       >
-        <h4 className='headertext text-center'>Add/Edit Scheme Details:</h4>
         <Modal.Body>
-          
-          <Row>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Scheme Name</Form.Label>
-                <Form.Control
-                  maxLength={50}
-                  type="text"
-                  placeholder="Enter Name"
-                  size="sm"
-                  name='Name'
-                  onChange={(e) => e.target.value}
-                  autoComplete='off'
-                  className='mb-3'
-                />
-                <span className="text-danger">{ }</span>
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Select Type</Form.Label>
-                <Form.Check
-                  inline
-                  label="Amount"
-                  name="group1"
-                  type="radio"
-                />
-                <Form.Check
-                  inline
-                  label="Weight"
-                  name="group1"
-                  type="radio"
-                />
-               
-                <span className="text-danger">{ }</span>
-              </Form.Group>
-            </Col>
-          </Row>
-          <Row>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Weight</Form.Label>
-                <Form.Control
-                  maxLength={50}
-                  type="text"
-                  placeholder="Enter Weight"
-                  size="sm"
-                  name='Name'
-                  onChange={(e) => e.target.value}
-                  autoComplete='off'
-                  className='mb-3'
-                />
-                <span className="text-danger">{ }</span>
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Select Stores</Form.Label>
-                <div className="leftedge d-flex justify-content-space">
-                  <Form.Select
-                    aria-label="Default select example"
-                    size={"sm"}
-                    className="selectsizesmall"
-                    onChange={() => { }}
-                  >
-                    <option >Select Store</option>
-                    <option value="1">hari</option>
-                    <option value="2">gopal</option>
-                    <option value="3">mani</option>
-                    <option value="4">prema</option>
-                    <option value="5">hema</option>
-                    <option value="6">Ragu</option>
-                    <option value="7">ram</option>
-                  </Form.Select>
-                </div>
-                <span className="text-danger">{ }</span>
-              </Form.Group>
-            </Col>
-          </Row>
-          <Row>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Select Payment Option</Form.Label>
-                <div className="leftedge d-flex justify-content-space">
-                  <Form.Select
-                    aria-label="Default select Payment"
-                    size={"sm"}
-                    className="selectsizesmall"
-                    onChange={() => { }}
-                  >
-                    <option >Select Payment Option</option>
-                    <option value="1">Offline</option>
-                    <option value="2">Online</option>
-                  </Form.Select>
-                </div>
-                <span className="text-danger">{ }</span>
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label></Form.Label>
-                <Form.Check
-                  type="switch"
-                  id="custom-switch"
-                  label="Availability"
-                />
-              </Form.Group>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <Form.Group className="mb-3">
-                <Form.Label>Add Product Image</Form.Label>
-                <Form.Control
-                  type="file"
-                  placeholder="Product Image"
-                  className="w-50"
-                  name="image"
-                  autoComplete="off"
-                />
-              </Form.Group>
-            </Col>
-          </Row>
-          <Row>
-            <Col md={6}>
-              <Button variant="warning">Update Image</Button>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <Form.Group className="mb-3">
-                <Form.Label>Add Product Video</Form.Label>
-                <Form.Control
-                  type="file"
-                  placeholder="Product Video"
-                  className="w-50"
-                  name="image"
-                  autoComplete="off"
-                />
-              </Form.Group>
-            </Col>
-          </Row>
-          <Row>
-            <Col md={6}>
-              <Button variant="warning">Update Video</Button>
-            </Col>
-          </Row>
+          <h3 className="headertext text-center">Edit Scheme Details</h3>
+          <Card className="p-2">
+            <Row>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label>Scheme Name</Form.Label>
+                  <div className="leftedge d-flex justify-content-space">
+                    <Form.Select
+                      aria-label="Default select example"
+                      size={"sm"}
+                      className="selectsizesmall"
+                    //  onChange={handleNameChange}
+                    >
+                      <option value="">{shopdetails?.Schemename} </option>
+                      {/* <option value="KUBERA">KUBERA</option>
+                      <option value="SUVARNA">SUVARNA</option>
+                      <option value="SAMRUDDHI">SAMRUDDHI</option>
+                      <option value="VINAYAKA's GOLD JAR">VINAYAKA's GOLD JAR</option> */}
+                    </Form.Select>
+                  </div>
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className="mt-3">
+              <Col md={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Select Store</Form.Label>
+                  <div className="leftedge d-flex justify-content-space">
+                    <Form.Select
+                      aria-label="Default select example"
+                      size={"sm"}
+                      className="selectsizesmall"
+                    //  onChange={handleStoreChange}
+                    >
+                      <option>{shopdetails?.StoreID?.name}</option>
+                    </Form.Select>
+                  </div>
+
+                </Form.Group>
+              </Col>
+            </Row>
+            {shopdetails?.Schemename === "VINAYAKA's GOLD JAR" ? "" :
+              <Row>
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label>Amount</Form.Label><br></br>
+                    {AmountArry?.length > 0 ? AmountArry?.map((item) => <span>{item?.Amount}, </span>) : shopdetails?.Amount?.map((item) => <span>{item?.Amount}, </span>)}
+                    <Form.Control
+                      maxLength={50}
+                      type="number"
+                      placeholder="Enter Scheme Amount"
+                      size="sm"
+                      name="minAmt"
+                      onChange={(e) => setAmount(e.target.value)}
+                      autoComplete="off"
+                      className="mb-3 number-input"
+                      value={Amount}
+                    />
+
+                  </Form.Group>
+                </Col>
+                <Col md={4}>
+                  <button style={{ marginTop: AmountArry?.length > 0 ? "55px" : "30px", border: "none", padding: "4px 15px", color: "white", backgroundColor: "#0d6efd", borderRadius: "5px" }} onClick={addAmount}>Add</button>
+                </Col>
+              </Row>
+            }
+            <Row>
+              <Col md={2}>
+                <Form.Group className="mb-3">
+                  <Form.Label></Form.Label>
+                  <Form.Check
+                    type="switch"
+                    id="custom-switch"
+                    label="Activated"
+                    checked={Activated ? Activated : shopdetails?.Activated}
+                    onChange={(e) => setActivated(e?.target?.checked)}
+                  />
+
+                </Form.Group>
+              </Col>
+              <Col md={3}>
+                <Form.Group className="mb-3">
+                  <Form.Label></Form.Label>
+                  <Form.Check
+                    type="switch"
+                    id="custom-switch"
+                    label="Popular"
+                    checked={Popular ? Popular : shopdetails?.Popular}
+                    onChange={(e) => setPopular(e?.target?.checked)}
+                  />
+
+                </Form.Group>
+              </Col>
+            </Row>
+
+            {shopdetails?.name === "VINAYAKA's GOLD JAR" ? "" : (<>
+              <Row className="mt-4">
+                <Col md={6}>
+                  <Form.Group>
+                    <Form.Label>Select Plan Duration</Form.Label>
+                    <Form.Check
+                      label="General Duration"
+                      name="duration"
+                      type="radio"
+                      onChange={() => setDuration("general")}
+                      checked={Duration === "general" ? true : false}
+                    />
+                    {Duration === "general" ? (
+                      <>
+                        <Form.Check
+                          label="( 6+1 )"
+                          checked={checkedDuration === 6 && true}
+                          onChange={() => handleDuration(6)}
+                          name="duration"
+                          type="radio"
+                        />
+                        <Form.Check
+                          label="( 10+1 )"
+                          checked={checkedDuration === 10 && true}
+                          onChange={() => handleDuration(10)}
+                          name="duration"
+                          type="radio"
+                        />
+                        <Form.Check
+                          // inline
+                          label="( 11+1 )"
+                          checked={checkedDuration === 11 && true}
+                          onChange={() => handleDuration(11)}
+                          name="duration"
+                          type="radio"
+                        />
+                        <Form.Check
+                          label="( 24+1 )"
+                          checked={checkedDuration === 24 && true}
+                          onChange={() => handleDuration(24)}
+                          name="duration"
+                          type="radio"
+                        />
+                        <Form.Check
+                          label="( 36+1 )"
+                          checked={checkedDuration === 36 && true}
+                          onChange={() => handleDuration(36)}
+                          name="duration"
+                          type="radio"
+                        />
+                      </>
+                    ) : ""}
+                    <Form.Check
+                      label="Custom Duration"
+                      name="duration"
+                      type="radio"
+                      onChange={() => setDuration("custom")}
+                      value={Duration === "custom" ? true : false}
+                    />
+                    {Duration === "custom" && (
+                      <>
+                        <Form.Control
+                          maxLength={50}
+                          type="text"
+                          placeholder="Enter Duration"
+                          size="sm"
+                          name="duration"
+                          // onChange={handleChange}
+                          autoComplete="off"
+                          className="mb-3"
+                          value={shopdetails?.inputDuration}
+                        />
+                      </>
+                    )}
+
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row className="mt-4">
+                <Col md={6} >
+                  <Form.Group>
+                    <Form.Label>Discount Type </Form.Label>
+                    <Form.Control
+                      maxLength={50}
+                      type="text"
+                      placeholder="Discount Type"
+                      size="sm"
+                      name="discountType"
+                      autoComplete="off"
+                      className="mb-3 number-input"
+                      value={shopdetails?.DiscountType}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+            </>)}
+            {shopdetails?.DiscountType === "Discount on Making Charges" ?
+              <Row className="mt-4">
+                <Col md={6} >
+                  <Form.Group>
+                    <Form.Label>Your Discount </Form.Label>
+                    <Form.Control
+                      maxLength={50}
+                      type="number"
+                      placeholder="Enter Discount %"
+                      size="sm"
+                      name="discountPercentage"
+                      onChange={(e) => setdiscountPercentage(e.target.value)}
+                      autoComplete="off"
+                      className="mb-3 number-input"
+                      value={discountPercentage ? discountPercentage : shopdetails?.DiscountPercentage}
+                    />
+
+                  </Form.Group>
+                </Col>
+              </Row> : ""}
+            <Row className="mt-4">
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label>Customer Can Redeem Scheme at</Form.Label>
+                  <Form.Check
+                    label="Any Store"
+                    name="redeemType"
+                    value="any"
+                    type="radio"
+                    onChange={() => setRedeemType("any")}
+                  />
+                  <Form.Check
+                    label="The store selected at the time of starting the scheme"
+                    name="redeemType"
+                    value="store"
+                    type="radio"
+                    onChange={() => setRedeemType("store")}
+                  />
+
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row className="mt-4">
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label>Description </Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter Description "
+                    size="sm"
+                    name="description"
+                    onChange={(e) => setdescription(e.target.value)}
+                    autoComplete="off"
+                    className="mb-3"
+                    value={description ? description : shopdetails?.Description}
+                  />
+
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row className="mt-4">
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label>Terms & Conditions </Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    type="text"
+                    placeholder="Enter Terms & Conditions"
+                    name="terms"
+                    onChange={(e) => settermcondition(e.target.value)}
+                    rows={5}
+                    value={shopdetails?.TermsConditions}
+                  />
+
+                </Form.Group>
+              </Col>
+            </Row>
+            {shopdetails?.name === "VINAYAKA's GOLD JAR" ? "" :
+              shopdetails?.name === "KUBERA" ? (<>
+                <hr />
+                <Row>
+                  <h4>Example Calculation</h4>
+                  <h6>
+                    (If the installment amount is Rs. 2,500 in (11+1)plan)
+                  </h6>
+                  <Col md={6}>
+                    <h6>Amount paid by the customer in 11 installments</h6>
+                    <h6>Amount paid by you</h6>
+                  </Col>
+                  <Col md={6}>
+                    <h6>27,5000 /-</h6>
+                    <h6>2,500 /-</h6>
+                  </Col>
+                </Row>
+                <Row>
+                  <h5>Maturity Amount:</h5>
+                </Row>
+                <Row>
+                  <h6>30,000 /-</h6>
+                </Row>
+              </>) :
+                shopdetails?.name === "SUVARNA" || shopdetails?.name === "SAMRUDDHI" ?
+                  (<>
+                    <hr />
+                    <Row>
+                      <h4>Example Calculation</h4>
+                      <h6>
+                        (If the installment amount is Rs. 2,500 in (11+1)plan with 25%
+                        discount on Making charges)
+                      </h6>
+                      <Col md={6}>
+                        <h6>Amount paid by the customer in 11 installments</h6>
+                        <h6>Amount paid by you 25% of making charges(Supose making charges is 1000)</h6>
+                      </Col>
+                      <Col md={6}>
+                        <h6>27,5000 /-</h6>
+                        <h6>250 /-</h6>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <h5>Maturity Amount:</h5>
+                    </Row>
+                    <Row>
+                      <h6>27,5000 /-</h6>
+                    </Row>
+                  </>) : ""}
+
+
+          </Card>
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={handleCloseModal} variant="secondary">
+          <Button onClick={handleCloseEditModal} variant="secondary">
             Cancel
           </Button>
-          <Button variant="warning">
-            Submit
+          <Button
+            variant="warning"
+            onClick={() => {
+              editStore(shopdetails);
+            }}
+          >
+            Save
           </Button>
         </Modal.Footer>
-      </Modal> */}
-      {/* <Modal
-        show={coinModal}
-        onHide={handleCloseModal1}
-        backdrop="static"
-        keyboard={false}
-        centered
-        size="lg"
-      >
-        <h4 className='headertext text-center'>Add/Edit Bar/Coins:</h4>
-        <Modal.Body>
-          <Row>
-            <Col md={6}>
-              <Form.Check
-                inline
-                label="Bar"
-                name="group1"
-                type="radio"
-              />
-              <Form.Check
-                inline
-                label="Coin"
-                name="group1"
-                type="radio"
-              />
-            </Col>
-          </Row>
-          <Row>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Name</Form.Label>
-                <Form.Control
-                  maxLength={50}
-                  type="text"
-                  placeholder="Enter Name"
-                  size="sm"
-                  name='Name'
-                  onChange={(e) => e.target.value}
-                  autoComplete='off'
-                  className='mb-3'
-                />
-                <span className="text-danger">{ }</span>
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Purity</Form.Label>
-                <Form.Control
-                  maxLength={50}
-                  type="text"
-                  placeholder="Enter Purity"
-                  size="sm"
-                  name='Name'
-                  onChange={(e) => e.target.value}
-                  autoComplete='off'
-                  className='mb-3'
-                />
-                <span className="text-danger">{ }</span>
-              </Form.Group>
-            </Col>
-          </Row>
-          <Row>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Weight</Form.Label>
-                <Form.Control
-                  maxLength={50}
-                  type="text"
-                  placeholder="Enter Weight"
-                  size="sm"
-                  name='Name'
-                  onChange={(e) => e.target.value}
-                  autoComplete='off'
-                  className='mb-3'
-                />
-                <span className="text-danger">{ }</span>
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Select Stores</Form.Label>
-                <div className="leftedge d-flex justify-content-space">
-                  <Form.Select
-                    aria-label="Default select example"
-                    size={"sm"}
-                    className="selectsizesmall"
-                    onChange={() => { }}
-                  >
-                    <option >Select Store</option>
-                    <option value="1">Sri Vinayaka Jewellers, Mumbai</option>
-                    <option value="2">Sri Vinayaka Jewellers, Bengalore</option>
-                    <option value="3">Sri Vinayaka Jewellers, Jay Nagar</option>
-                    <option value="4">Sri Vinayaka Jewellers, JP Nagar</option>
-                    <option value="5">Sri Vinayaka Jewellers, Delhi</option>
-                    <option value="6">Sri Vinayaka Jewellers, KR Market</option>
-                    <option value="7">Sri Vinayaka Jewellers, Mangalore</option>
-                  </Form.Select>
-                </div>
-                <span className="text-danger">{ }</span>
-              </Form.Group>
-            </Col>
-          </Row>
-          <Row>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Enter Model</Form.Label>
-                <Form.Control
-                  maxLength={50}
-                  type="text"
-                  placeholder="Enter Model"
-                  size="sm"
-                  name='Name'
-                  onChange={(e) => e.target.value}
-                  autoComplete='off'
-                  className='mb-3'
-                />
-                <span className="text-danger">{ }</span>
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Enter Packaging</Form.Label>
-                <Form.Control
-                  maxLength={50}
-                  type="text"
-                  placeholder="Enter Packaging"
-                  size="sm"
-                  name='Name'
-                  onChange={(e) => e.target.value}
-                  autoComplete='off'
-                  className='mb-3'
-                />
-                <span className="text-danger">{ }</span>
-              </Form.Group>
-            </Col>
-          </Row>
-          <Row>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Select Payment Option</Form.Label>
-                <div className="leftedge d-flex justify-content-space">
-                  <Form.Select
-                    aria-label="Default select Payment"
-                    size={"sm"}
-                    className="selectsizesmall"
-                    onChange={() => { }}
-                  >
-                    <option >Select Payment Option</option>
-                    <option value="1">Offline</option>
-                    <option value="2">Online</option>
-                  </Form.Select>
-                </div>
-                <span className="text-danger">{ }</span>
-              </Form.Group>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <Form.Group className="mb-3">
-                <Form.Label>Add Product Image</Form.Label>
-                <Form.Control
-                  type="file"
-                  placeholder="Admin Image"
-                  className="w-50"
-                  name="image"
-                  autoComplete="off"
-                />
-              </Form.Group>
-            </Col>
-          </Row>
-          <Row>
-            <Col md={6}>
-              <Button variant="warning">Update</Button>
-            </Col>
-          </Row>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={handleCloseModal1} variant="secondary">
-            Cancel
-          </Button>
-          <Button variant="warning">
-            Submit
-          </Button>
-        </Modal.Footer>
-      </Modal> */}
-    </div >
-  )
+      </Modal>
+    </div>
+  );
 }
 
-export default ManageSchemes
+export default ManageSchemes;

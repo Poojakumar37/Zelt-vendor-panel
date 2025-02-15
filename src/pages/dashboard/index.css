@@ -6,3 +6,43 @@
     width: 100%;
     font-size: 16px;
 }
+
+.Bannercontent-flex{
+    justify-content: space-between;
+    display: flex;
+}
+.sidebar {
+    width: 270px;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: -240px;
+    background-color: #fff;
+    border-right: 1px solid #ddd;
+    transition: left 0.3s ease-in-out;
+  }
+  
+  .sidebar.open {
+    left: 0;
+  }
+  
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .toggle-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px 10px;
+  }
+
+.sidebar p.active {
+    background-color: #dceaf8; /* Add your desired active background color */
+  }

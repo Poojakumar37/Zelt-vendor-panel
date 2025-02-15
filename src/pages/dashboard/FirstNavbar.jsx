@@ -11,6 +11,8 @@ import {
   Navbar,
   NavDropdown,
   Offcanvas,
+  InputGroup,
+
 } from "react-bootstrap";
 import {
   AiFillAppstore,
@@ -29,6 +31,8 @@ import 'react-toastify/dist/ReactToastify.css';
 function FirstNavbar() {
   const navigate = useNavigate()
   const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('vendorDetails')
     toast.success('Successfully Logout')
     setTimeout(() => {
       navigate('/');
@@ -36,7 +40,7 @@ function FirstNavbar() {
   }
 
   return (
-    <div>
+    <div className="">
       <ToastContainer
         position="top-center"
         autoClose={1000}
@@ -48,14 +52,13 @@ function FirstNavbar() {
       <Navbar>
         <Container>
           <Navbar.Toggle aria-controls="navbarScroll" />
-          <Navbar.Collapse id="navbarScroll">
+
+          <Navbar.Collapse id="navbarScroll" className="d-flex justify-content-end px-4 gap-2">
             <Nav
               className="me-auto my-lg-0"
               style={{ maxHeight: "100px" }}
               navbarScroll
             >
-              {/* <Nav.Link href="#action1">Home</Nav.Link>
-              <Nav.Link href="#action1">Contact Us</Nav.Link> */}
             </Nav>
             <div className="d-flex" onClick={handleLogout} >
               <Button variant="outline-primary">Log Out</Button>

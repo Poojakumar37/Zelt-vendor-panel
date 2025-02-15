@@ -10,6 +10,11 @@ body {
 .headertext{
   color: #004026
 }
+.headertext1{
+  color: #004026;
+  font-size: 24px;
+  font-weight:'800';
+}
 .text{
   color: #BE783B
 }
@@ -65,7 +70,7 @@ a {
 .sidebar {
   margin: 0;
   padding: 0;
-  width: 200px;
+  width: 215px;
   background-color: #f1f1f1;
   position: fixed;
   height: 100%;
@@ -75,7 +80,7 @@ a {
 .sidebar a {
   display: block;
   color: black;
-  padding: 16px;
+  /* padding: 16px; */
   text-decoration: none;
   cursor: pointer;
 }
@@ -89,6 +94,10 @@ a {
   background-color: #004026;
   color: white !important;
 }
+/* .icons {
+  width: 20%;
+  height: 20%;
+} */
 
 /* .sidebar a:hover:not(.active) {
   background-color: #5d59aa;
@@ -96,7 +105,7 @@ a {
 } */
 
 div.content {
-  margin-left: 200px;
+  margin-left: 250px;
   padding: 1px 16px;
   height: 100%;
 }
