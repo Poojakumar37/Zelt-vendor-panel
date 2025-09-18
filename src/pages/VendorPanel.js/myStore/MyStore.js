@@ -316,7 +316,7 @@ function MyStore() {
   const deleteStores = async (id) => {
     if (window.confirm("Are you sure you want to delete...?")) {
       const data = await axios
-        .patch(`http://localhost:3001/api/Stores/deleteStores/${id}`, {
+        .patch(`http://localhost:3001/api/Stores/deleteStores/${id}`, {}, {
           headers: {
             "x-access-token": localStorage.getItem("accessToken"),
           },
@@ -464,8 +464,8 @@ function MyStore() {
                           <td>
                             <Figure>
                               <Figure.Image
-                                width={100}
-                                height={100}
+                                width={50}
+                                height={50}
                                 alt="Image"
                                 src={shop.StoreLogo}
                               />

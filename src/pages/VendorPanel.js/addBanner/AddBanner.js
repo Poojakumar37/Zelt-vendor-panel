@@ -380,6 +380,7 @@ function AddBanner() {
                   size={"sm"}
                   onChange={(e) => setSeletedShop(e.target.value)}
                 >
+                  <option>Select</option>
                   {
                     ShopList?.map(shop => (
                       <option value={shop._id}>{shop.name}</option>

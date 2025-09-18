@@ -27,7 +27,7 @@ function Customer() {
 
     const customerDataList = () => {
         let token = localStorage.getItem('accessToken');
-        axios.get("https://zelt-admin-api.moshimoshi.cloud/user/all?type=customer&account=requested", {
+        axios.get("http://localhost:3001/user/all?type=customer&account=requested", {
             headers: {
                 "x-access-token": token
             }

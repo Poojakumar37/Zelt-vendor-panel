@@ -176,9 +176,14 @@ const Login = () => {
                 />
                 <span className="text-danger" >{loginFormErrors.password}</span>
               </p>
-              <p className='d-flex justify-content-center align-content-center'>
-                <Link to='/forgotpassword' >Forgot Password ?</Link>
+              {/* <Link to='/forgotpassword' > */}
+              <p className='d-flex justify-content-center align-content-center' onClick={(e) => {
+                e.preventDefault();
+                window.location.assign("/forgotpassword");
+              }}>
+                Forgot Password ?
               </p>
+              {/* </Link> */}
               <p
 
                 onClick={handleSubmit}

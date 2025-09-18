@@ -166,10 +166,11 @@ function ForgotPassword() {
         } else {
             setLoader(true)
             try {
-                const response = await axios.post(`http://192.168.21.53:3001/api/otp/verifyOtp`, {
+                const response = await axios.post(`http://localhost:3001/api/otp/verifyOtp`, {
                     otp: otpData.otp,
                     phone: loginForm.phone
                 });
+                console.log("response", response);
 
                 if (response?.status === 200) {
                     toast.success('Verified Successfully')
@@ -200,17 +201,16 @@ function ForgotPassword() {
         } else {
             setLoader(true)
             try {
-                const response = await axios.patch(`http://192.168.21.53:3001/api/vendor/ChangeVendorpassword`, {
+                const response = await axios.patch(`http://localhost:3001/api/vendor/ChangeVendorpassword`, {
                     phone: loginForm.phone, password: password.confirmPassword
                 });
                 if (response?.status === 200) {
+                    toast.success('Password Reset Done Successfully', {
+                        onClose: () => navigate('/')
+                    });
 
-                    toast.success('Password Reset Done Successfully')
                     setLoader(false)
 
-                    setTimeout(() => {
-                        navigate('/');
-                    }, 1000);
 
                 } else {
                     toast.error('user credentials are invalid')
@@ -230,7 +230,6 @@ function ForgotPassword() {
 
     return (
         <div>
-            {" "}
             <div>
                 <ToastContainer
                     position="top-center"

@@ -151,7 +151,7 @@ function ManageSchemes() {
   const deleteScheme = async (id) => {
     if (window.confirm("Are you sure you want to delete...?")) {
       const data = await axios
-        .patch(`http://localhost:3001/api/Scheme/deleteScheme/${id}`, {
+        .patch(`http://localhost:3001/api/Scheme/deleteScheme/${id}`, {}, {
           headers: {
             "x-access-token": localStorage.getItem("accessToken"),
           },

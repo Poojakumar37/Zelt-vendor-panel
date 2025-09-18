@@ -416,7 +416,7 @@ function CreateScheme() {
                       <option value="KUBERA">KUBERA</option>
                       <option value="SUVARNA">SUVARNA</option>
                       <option value="SAMRUDDHI">SAMRUDDHI</option>
-                      <option value="VINAYAKA's GOLD JAR">VINAYAKA's GOLD JAR</option>
+                     {/* <option value="VINAYAKA's GOLD JAR">VINAYAKA's GOLD JAR</option>*/}
                     </Form.Select>
                   </div>
                   <span className="text-danger">{schemeFormErrors?.name}</span>

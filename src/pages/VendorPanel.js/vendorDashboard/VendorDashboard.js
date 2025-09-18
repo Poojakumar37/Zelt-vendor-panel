@@ -30,7 +30,7 @@ function VendorDashboard() {
   const getShopList = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3001/api/Stores/getAllStores",
+        "https://api.thezelt.in/api/Stores/getAllStores",
         {
           headers: {
             "Content-Type": "application/json",
@@ -57,7 +57,7 @@ function VendorDashboard() {
 
 
   const investData = () => {
-    axios.get(`http://localhost:3001/api/user/getSchemeOrderStoresID/${selectedShop}`, {
+    axios.get(`https://api.thezelt.in/api/user/getSchemeOrderStoresID/${selectedShop}`, {
       headers: {
         "x-access-token": localStorage.getItem("accessToken"),
       }
@@ -86,47 +86,62 @@ function VendorDashboard() {
     getShopList()
   }, []);
 
-  // useEffect(() => {
-  //   if (InvestmentData?.length > 0) {
-  //     const filteredData = InvestmentData.filter((item) => {
-  //       const lastInvestment = item?.Investment?.[item?.Investment?.length - 1];
 
-  //       if (!lastInvestment || !lastInvestment?.InvestmentDate) {
-  //         console.log("Skipping due to missing data:", item);
-  //         return false;
-  //       }
 
-  //       const investmentDateFormatted = moment(lastInvestment.InvestmentDate).format("DD-MM-YYYY");
-  //       const todayFormatted = moment().format("DD-MM-YYYY");
+  // const totalInvestmentAmountToday = useMemo(() => {
+  //   if (!InvestmentData?.length) return 0;
 
-  //       console.log("Investment Date:", investmentDateFormatted, "| Today:", todayFormatted);
+  //   const todayFormatted = moment().format("DD-MM-YYYY");
 
-  //       return investmentDateFormatted === todayFormatted ? lastInvestment?.Amount : 0;
+  //   return InvestmentData.reduce((total, item) => {
+  //     if (!item?.Investment?.length) return total;
+
+  //     const todayInvestments = item.Investment.filter(investment => {
+  //       if (!investment?.InvestmentDate) return false;
+  //       return moment(investment.InvestmentDate).format("DD-MM-YYYY") === todayFormatted;
   //     });
 
-  //     console.log("Filtered Data:", filteredData);
-  //   }
+  //     const todayTotal = todayInvestments.reduce((sum, investment) => sum + (investment?.Amount || 0), 0);
+
+  //     return total + todayTotal;
+  //   }, 0);
   // }, [InvestmentData]);
 
 
-  const totalInvestmentAmountToday = useMemo(() => {
-    if (!InvestmentData?.length) return 0;
+  const todayInvestmentStats = useMemo(() => {
+    if (!InvestmentData?.length) {
+      return {
+        totalAmount: 0,
+        totalGold: 0,
+      };
+    }
 
     const todayFormatted = moment().format("DD-MM-YYYY");
 
-    return InvestmentData.reduce((total, item) => {
-      if (!item?.Investment?.length) return total;
+    return InvestmentData.reduce(
+      (totals, item) => {
+        if (!item?.Investment?.length) return totals;
 
-      const todayInvestments = item.Investment.filter(investment => {
-        if (!investment?.InvestmentDate) return false;
-        return moment(investment.InvestmentDate).format("DD-MM-YYYY") === todayFormatted;
-      });
+        const todayInvestments = item.Investment.filter(investment => {
+          if (!investment?.InvestmentDate) return false;
+          return moment(investment.InvestmentDate).format("DD-MM-YYYY") === todayFormatted;
+        });
 
-      const todayTotal = todayInvestments.reduce((sum, investment) => sum + (investment?.Amount || 0), 0);
+        todayInvestments.forEach(investment => {
+          const amount = investment?.Amount || 0;
+          const rate = investment?.GoldRateondate || 0;
+          const gold = rate > 0 ? amount / rate : 0;
 
-      return total + todayTotal;
-    }, 0);
+          totals.totalAmount += amount;
+          totals.totalGold += gold;
+        });
+
+        return totals;
+      },
+      { totalAmount: 0, totalGold: 0 }
+    );
   }, [InvestmentData]);
+
 
 
   useEffect(() => {
@@ -141,7 +156,7 @@ function VendorDashboard() {
 
     // Iterate through each item in the array
     InvestmentData.forEach((item) => {
-      const userID = item.UserID._id; // Assuming UserID has an _id field
+      const userID = item?.UserID?._id; // Assuming UserID has an _id field
 
       // If the UserID is not already in the Map, add it
       if (!uniqueUsersMap.has(userID)) {
@@ -153,11 +168,11 @@ function VendorDashboard() {
     return Array.from(uniqueUsersMap.values());
   };
 
-  console.log("Total Investment Amount Today:", totalInvestmentAmountToday);
+  // console.log("Total Investment Amount Today:", totalInvestmentAmountToday);
 
   console.log("InvestmentData", InvestmentData);
-  console.log("selectedShop", selectedShop);
-  console.log("ShopList", ShopList);
+  // console.log("selectedShop", selectedShop);
+  // console.log("ShopList", ShopList);
 
   return (
     <div>
@@ -290,7 +305,7 @@ function VendorDashboard() {
                             >
                               {/* Brochure Requests Count: {dashboardData.brochureReqs.length} */}
                               <h5>
-                                {totalInvestmentAmountToday}
+                                {todayInvestmentStats?.totalAmount}
                               </h5>
                             </div>
                           </Card>
@@ -312,7 +327,7 @@ function VendorDashboard() {
                             >
                               {/* Brochure Requests Count: {dashboardData.brochureReqs.length} */}
                               <h5>
-                                {totalInvestmentAmountToday / liveRate}/gm
+                                {(todayInvestmentStats?.totalGold)?.toFixed(2)}/gm
                               </h5>
                             </div>
                           </Card>

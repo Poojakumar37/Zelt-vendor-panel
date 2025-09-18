@@ -13,6 +13,7 @@ import {
   Accordion,
   Button,
   Card,
+  Col,
   Container,
   Form,
   FormControl,
@@ -22,6 +23,7 @@ import {
   NavDropdown,
   NavLink,
   Offcanvas,
+  Row,
 } from "react-bootstrap";
 import { Navigate, Navigation, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -40,6 +42,7 @@ import axios from "axios";
 // import baseURL from "../../Services/Url";
 import { AgGridReact } from "ag-grid-react";
 import logozelt from '../../assets/imagesCustomer/logozelt.png'
+import moment from 'moment'
 
 
 
@@ -49,12 +52,63 @@ function SideBar({ Navigation }) {
   const [counter, setCounter] = useState(0)
   const [dashboardData, setDashboardData] = useState({});
   const [liveRate, setLiveRate] = useState("");
+  const [grate, setgrate] = useState();
   const [vendorDetails] = useState(
     JSON.parse(localStorage.getItem("vendorDetails"))
   );
 
 
   const [userDetails, setUserDetails] = useState();
+
+  useEffect(() => {
+    liveRateData();
+    Goldrate()
+  }, [])
+
+  const liveRateData = async () => {
+    try {
+      const liveData = await axios.get("http://localhost:3001/api/user/live-rate",
+        {
+          headers: {
+            "x-access-token": localStorage.getItem("accessToken"),
+          }
+        });
+      if (liveData?.status === 200) {
+        console.log("liveData?.data", liveData?.data);
+        const twentyTwoKaratValue22 = parseInt(liveData?.data?.goldRatePerGram22K)?.toFixed(2);
+
+        setLiveRate(twentyTwoKaratValue22)
+
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+
+  const date = moment().format("YYYY-MM-DD")
+  console.log("date", date, grate);
+
+  const Goldrate = () => {
+    const token = localStorage.getItem('accessToken');
+    axios.get("http://localhost:3001/api/admin/goldraterouter/getgoldrateAsperdate", {
+      headers: {
+        "x-access-token": token
+      },
+      params: {  // Use params instead of body for GET requests
+        date: date
+      }
+    })
+      .then((response) => {
+        console.log(response, "RESPONSE DATA");
+        if (response.status === 200) {
+          setgrate(response?.data?.goldrate);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching gold rate:", error);
+      });
+  };
 
   const handleClick = (e) => {
 
@@ -63,22 +117,7 @@ function SideBar({ Navigation }) {
       data: e
     })
   }
-  const liveRateGet = async () => {
-    // url: "http://localhost:3005/cart/live-rate",
-    try {
-      const response = await axios({
-        method: "GET",
-        url: "https://zelt-cart.moshimoshi.cloud/cart/live-rate",
-      });
 
-      console.log("live rate data", response?.data);
-      setLiveRate(response?.data?.data["22kt"]);
-
-      //else {}
-    } catch (error) {
-      console.log("live rate error ====> ", error);
-    }
-  };
   const getUserDetails = async () => {
     try {
       // const response = await axios.get("http://localhost:3050/user", {
@@ -126,11 +165,11 @@ function SideBar({ Navigation }) {
   //   name: 'Request',
   //   icon: <MdOutlineAdminPanelSettings className='icons' />
   // },
-  // {
-  //   path: '/vendorProducts',
-  //   name: 'Products',
-  //   icon: <IoDiamondOutline className='icons' />
-  // },
+  {
+    path: '/vendorProducts',
+    name: 'Products',
+    icon: <IoDiamondOutline className='icons' />
+  },
   {
     path: '/vendorScheme',
     name: ' Scheme',
@@ -177,9 +216,6 @@ function SideBar({ Navigation }) {
     setIsOpen(!isOpen);
   };
 
-  useEffect(() => {
-    liveRateGet()
-  }, [])
 
   useEffect(() => {
     if (!vendorDetails) return; // Run only if customer exists
@@ -234,6 +270,9 @@ function SideBar({ Navigation }) {
       });
   };
 
+
+
+
   return (
     <>
       <div className={`sidebar${isOpen ? ' open' : ''}`}>
@@ -263,10 +302,26 @@ function SideBar({ Navigation }) {
             </p>
           ))}
         </div>
-        <div className='d-flex justify-content-center mt-5 align-content-center' style={{ backgroundColor: '#d9d6a9' }}>
+        <div className='mt-5' style={{ backgroundColor: '#d9d6a9', padding: "10px" }}>
           <div className='mt-2'>
             <h1 className='fs-6 fw-bold w-100 m-1'>Live Rate</h1>
-            <p className='fw-bold text-danger w-100 '>{liveRate}</p>
+            {/* <p className='fw-bold text-danger w-100 '>{liveRate}</p> */}
+            {/* <Row>
+              <Col md={8}>24ct @1gm</Col>
+              <Col md={4} className='text-danger'>27000</Col>
+            </Row> */}
+            <Row>
+              <Col md={8}>22ct @1gm</Col>
+              <Col md={4} className='text-danger'>{grate?.g22ct}/-</Col>
+            </Row>
+            {/* <Row>
+              <Col md={8}>Silver @1gm</Col>
+              <Col md={4} className='text-danger'>27000</Col>
+            </Row>
+            <Row>
+              <Col md={8}>Platinum @1gm</Col>
+              <Col md={4} className='text-danger'>27000</Col>
+            </Row> */}
           </div>
         </div>
       </div>
