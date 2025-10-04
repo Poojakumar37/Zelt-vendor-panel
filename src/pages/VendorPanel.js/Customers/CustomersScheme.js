@@ -9,6 +9,7 @@ import AuthServices from "../../authServices/AuthServices";
 import axios from "axios";
 import { toast } from "react-toastify";
 import moment from "moment/moment";
+import { BaseURL } from "../../../URL";
 
 const image = require("../../../assets/imagesCustomer/image.png");
 
@@ -57,7 +58,7 @@ function CustomersScheme() {
     }, [Customer])
 
     const investData = () => {
-        axios.get(`http://localhost:3001/api/user/getSchemeOrderUserID/${Customer?.UserID?._id}`, {
+        axios.get(`${BaseURL}/user/getSchemeOrderUserID/${Customer?.UserID?._id}`, {
             headers: {
                 "x-access-token": localStorage.getItem("accessToken"),
             }

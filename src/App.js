@@ -30,6 +30,9 @@ import ForgotPassword from './pages/auth/ForgotPassword'
 import CustomersList from "./pages/VendorPanel.js/Customers/CustomersList";
 import CustomersScheme from "./pages/VendorPanel.js/Customers/CustomersScheme";
 import Notification from "./pages/VendorPanel.js/Notification/Notification";
+import CustomerWallete from "./pages/VendorPanel.js/Customers/CustomerWallete";
+import Wallete from "./pages/VendorPanel.js/Wallete/Wallete";
+
 function App() {
   return (
     <BrowserRouter>
@@ -120,6 +123,22 @@ function App() {
           element={
             <ProtectedRoute>
               <CustomersScheme />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/CustomerWallete"
+          element={
+            <ProtectedRoute>
+              <CustomerWallete />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/Wallete"
+          element={
+            <ProtectedRoute>
+              <Wallete />
             </ProtectedRoute>
           }
         />
@@ -215,9 +234,9 @@ function App() {
         <Route
           path="/forgotpassword"
           element={
-          
-              <ForgotPassword />
-          
+
+            <ForgotPassword />
+
           }
         />
         <Route

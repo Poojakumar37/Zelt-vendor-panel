@@ -6,6 +6,9 @@ import Plot from "react-plotly.js";
 import axios from "axios";
 import Stats from "../storeStats/Stats";
 import moment from "moment";
+import { BaseURL } from "../../../URL";
+
+
 
 function VendorDashboard() {
   const [activeView, setActiveView] = useState("dashboard");
@@ -30,7 +33,7 @@ function VendorDashboard() {
   const getShopList = async () => {
     try {
       const response = await axios.get(
-        "https://api.thezelt.in/api/Stores/getAllStores",
+        `${BaseURL}/Stores/getAllStores`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -57,7 +60,7 @@ function VendorDashboard() {
 
 
   const investData = () => {
-    axios.get(`https://api.thezelt.in/api/user/getSchemeOrderStoresID/${selectedShop}`, {
+    axios.get(`${BaseURL}/user/getSchemeOrderStoresID/${selectedShop}`, {
       headers: {
         "x-access-token": localStorage.getItem("accessToken"),
       }

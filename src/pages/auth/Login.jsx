@@ -8,6 +8,7 @@ import { Spinner } from "react-bootstrap";
 import logozelt from './../../assets/imagesCustomer/logozelt.png'
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { BaseURL } from '../../URL';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -81,7 +82,7 @@ const Login = () => {
         },
         body: JSON.stringify(userCredentials)
       };
-      axios.post('http://localhost:3001/api/vendor/login', userCredentials, { "headers": requestOptions })
+      axios.post(`${BaseURL}/vendor/login`, userCredentials, { "headers": requestOptions })
         .then((response) => {
           console.log('response', response);
           if (response?.status === 200) {

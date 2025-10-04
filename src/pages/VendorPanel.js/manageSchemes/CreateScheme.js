@@ -7,6 +7,7 @@ import axios from "axios";
 import AuthServices from "../../authServices/AuthServices";
 import { toast, ToastContainer, Zoom } from "react-toastify";
 import './createcss.css'
+import { BaseURL } from "../../../URL";
 
 function CreateScheme() {
   const { state } = useLocation();
@@ -78,7 +79,7 @@ function CreateScheme() {
   const getStoreList = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3001/api/Stores/getAllStores",
+        `${BaseURL}/Stores/getAllStores`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -259,7 +260,7 @@ function CreateScheme() {
       }
 
       const schemeCreation = await axios.post(
-        `http://localhost:3001/api/Scheme/createScheme`,
+        `${BaseURL}/Scheme/createScheme`,
         // {
         //   data: {
         //     VendorID: schemeForm?.name,
@@ -416,7 +417,7 @@ function CreateScheme() {
                       <option value="KUBERA">KUBERA</option>
                       <option value="SUVARNA">SUVARNA</option>
                       <option value="SAMRUDDHI">SAMRUDDHI</option>
-                     {/* <option value="VINAYAKA's GOLD JAR">VINAYAKA's GOLD JAR</option>*/}
+                      {/* <option value="VINAYAKA's GOLD JAR">VINAYAKA's GOLD JAR</option>*/}
                     </Form.Select>
                   </div>
                   <span className="text-danger">{schemeFormErrors?.name}</span>

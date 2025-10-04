@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios'
+import { BaseURL } from '../../../URL'
 
 const image = require('../../../assets/imagesCustomer/image.png');
 
@@ -49,7 +50,7 @@ function SchemesSold() {
     const getShopList = async () => {
         try {
             const response = await axios.get(
-                "http://localhost:3001/api/Stores/getAllStores",
+                `${BaseURL}/Stores/getAllStores`,
                 {
                     headers: {
                         "Content-Type": "application/json",
@@ -66,7 +67,7 @@ function SchemesSold() {
     };
 
     const getAllScheme = () => {
-        axios.get(`http://localhost:3001/api/Scheme/getAllScheme`, {
+        axios.get(`${BaseURL}/Scheme/getAllScheme`, {
             headers: {
                 "x-access-token": localStorage.getItem("accessToken"),
             }
@@ -86,7 +87,7 @@ function SchemesSold() {
 
 
     const investData = () => {
-        axios.get(`http://localhost:3001/api/user/getSchemeOrderStoresID/${selectedShop}`, {
+        axios.get(`${BaseURL}/user/getSchemeOrderStoresID/${selectedShop}`, {
             headers: {
                 "x-access-token": localStorage.getItem("accessToken"),
             }

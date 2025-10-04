@@ -15,6 +15,7 @@ import {
 import axios from "axios";
 import { useEffect } from "react";
 import { toast } from "react-toastify";
+import { BaseURL } from "../../../URL";
 
 const image = require("../../../assets/imagesCustomer/image.png");
 
@@ -70,7 +71,7 @@ function AddBrochure() {
       formData.append("StoreID", SeletedShop);
       formData.append("VendorID", vendorDetails?._id);
       const data = await axios.post(
-        `http://localhost:3001/api/Vendor/createBrochures`,
+        `${BaseURL}/Vendor/createBrochures`,
         formData,
         {
           headers: { "x-access-Token": localStorage.getItem("accessToken") },
@@ -98,7 +99,7 @@ function AddBrochure() {
   const getShopList = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3001/api/Stores/getAllStores",
+        `${BaseURL}/Stores/getAllStores`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -132,7 +133,7 @@ function AddBrochure() {
   const getBrochure = async () => {
     try {
       const data = await axios.get(
-        `http://localhost:3001/api/Vendor/getAllBrochures`
+        `${BaseURL}/Vendor/getAllBrochures`
       );
       console.log("asfsdf", data.data.Brochures);
       setBrochureList(data.data.Brochures?.filter((item) => item?.deleted == false && item?.VendorID?._id == vendorDetails?._id && item?.StoreID?._id == SeletedShop1));

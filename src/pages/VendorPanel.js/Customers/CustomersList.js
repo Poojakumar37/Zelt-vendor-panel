@@ -7,6 +7,7 @@ import { faEdit, faTrash, faEye } from "@fortawesome/free-solid-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { BaseURL } from "../../../URL";
 
 
 function CustomersList() {
@@ -53,7 +54,7 @@ function CustomersList() {
     const getShopList = async () => {
         try {
             const response = await axios.get(
-                "http://localhost:3001/api/Stores/getAllStores",
+                `${BaseURL}/Stores/getAllStores`,
                 {
                     headers: {
                         "Content-Type": "application/json",
@@ -70,7 +71,7 @@ function CustomersList() {
     };
 
     const investData = () => {
-        axios.get(`http://localhost:3001/api/user/getSchemeOrderStoresID/${selectedShop}`, {
+        axios.get(`${BaseURL}/user/getSchemeOrderStoresID/${selectedShop}`, {
             headers: {
                 "x-access-token": localStorage.getItem("accessToken"),
             }
@@ -129,7 +130,7 @@ function CustomersList() {
     }
 
     console.log("InvestmentData", InvestmentData);
-    console.log("CustomerList", CustomerList);
+    console.log("selectedShop", selectedShop);
 
     return (
         <div>
@@ -191,7 +192,8 @@ function CustomersList() {
                                             <th>Customers Name</th>
                                             <th>Phone Number</th>
                                             <th>Email</th>
-                                            <th>View</th>
+                                            <th>Scheme</th>
+                                            <th>Wallete</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -203,6 +205,15 @@ function CustomersList() {
                                                 <td> {Customer?.UserID?.email}</td>
                                                 <td>
                                                     <Link to="/CustomersScheme" state={{ Customer: Customer }}>
+                                                        <FontAwesomeIcon
+
+                                                            icon={faEye}
+                                                            className="editIcon"
+                                                        />
+                                                    </Link>
+                                                </td>
+                                                <td>
+                                                    <Link to="/CustomerWallete" state={{ Customer: Customer, selectedShop: selectedShop }}>
                                                         <FontAwesomeIcon
 
                                                             icon={faEye}
@@ -228,7 +239,15 @@ function CustomersList() {
                                                             />
                                                         </Link>
                                                     </td>
+                                                    <td>
+                                                        <Link to="/CustomerWallete" state={{ Customer: Customer, selectedShop: selectedShop }}>
+                                                            <FontAwesomeIcon
 
+                                                                icon={faEye}
+                                                                className="editIcon"
+                                                            />
+                                                        </Link>
+                                                    </td>
                                                 </tr>))
                                         }
                                     </tbody>

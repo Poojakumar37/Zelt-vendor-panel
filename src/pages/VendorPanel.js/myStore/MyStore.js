@@ -18,6 +18,7 @@ import { faEdit } from "@fortawesome/free-solid-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons"
 import axios from "axios";
 import './mystore.css'
+import { BaseURL } from "../../../URL";
 
 function MyStore() {
   const [vendorDetails, setvendorDetails] = useState();
@@ -151,7 +152,7 @@ function MyStore() {
   const getShopList = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3001/api/Stores/getAllStores",
+        `${BaseURL}/Stores/getAllStores`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -227,7 +228,7 @@ function MyStore() {
       formData.append("GSTImage", gstImage);
       console.log(formData);
       const data = await axios
-        .post(`http://localhost:3001/api/Stores/CreateStores`, formData, {
+        .post(`${BaseURL}/Stores/CreateStores`, formData, {
           headers: {
             "x-access-token": localStorage.getItem("accessToken"),
           },
@@ -266,7 +267,7 @@ function MyStore() {
       formData.append("StoreLogo", StoreLogo ? StoreLogo : storeDetails?.StoreLogo);
       formData.append("GSTImage", GSTImage1 ? GSTImage1 : storeDetails?.GSTImage);
 
-      const response = await axios.patch(`http://localhost:3001/api/Stores/editStores`, formData, {
+      const response = await axios.patch(`${BaseURL}/Stores/editStores`, formData, {
         headers: {
           "x-access-token": localStorage.getItem("accessToken"),
         },
@@ -316,7 +317,7 @@ function MyStore() {
   const deleteStores = async (id) => {
     if (window.confirm("Are you sure you want to delete...?")) {
       const data = await axios
-        .patch(`http://localhost:3001/api/Stores/deleteStores/${id}`, {}, {
+        .patch(`${BaseURL}/Stores/deleteStores/${id}`, {}, {
           headers: {
             "x-access-token": localStorage.getItem("accessToken"),
           },

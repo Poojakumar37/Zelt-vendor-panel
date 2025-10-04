@@ -18,6 +18,7 @@ import axios from "axios";
 import AuthServices from "../../authServices/AuthServices";
 import "./Addavt.css";
 import { ToastContainer, toast, Zoom } from "react-toastify";
+import { BaseURL } from "../../../URL";
 
 const image = require("../../../assets/imagesCustomer/image.png");
 
@@ -55,7 +56,7 @@ function AddAdvertisement() {
   const getShopList = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3001/api/Stores/getAllStores",
+        `${BaseURL}/Stores/getAllStores`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -146,7 +147,7 @@ function AddAdvertisement() {
         formData.append("Description", input?.description);
         formData.append("Image", imagesData);
         const profileData = await axios.post(
-          `http://localhost:3001/api/Advertisement/createAdvertisement`,
+          `${BaseURL}/Advertisement/createAdvertisement`,
           formData,
           {
             headers: { "x-access-Token": localStorage.getItem("accessToken") },
@@ -193,7 +194,7 @@ function AddAdvertisement() {
   const getAdvertisement = async () => {
     try {
       const data = await axios.get(
-        `http://localhost:3001/api/Advertisement/getAllAdvertisement`
+        `${BaseURL}/Advertisement/getAllAdvertisement`
       );
       console.log("asfsdf", data.data.Advertisement, SeletedShop1, vendorDetails?._id);
       setAdvert(data.data.Advertisement?.filter((item) => item?.VendorID?._id == vendorDetails?._id && item?.StoreID?._id == SeletedShop1 && item?.deleted == false));

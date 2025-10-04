@@ -15,6 +15,7 @@ import Plot from "react-plotly.js";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { TabGuardComp } from "ag-grid-community";
+import { BaseURL } from "../../../URL";
 
 // const image = require('../../../assets/imagesCustomer/image.png');
 
@@ -95,7 +96,7 @@ function VendorProfile() {
   const editUser = async () => {
     const data = await axios
       .put(
-        `http://localhost:3001/api/vendor/updateProfile`,
+        `${BaseURL}/vendor/updateProfile`,
         {
           id: vendorDetails?._id,
           name: editUserDetails?.name ? editUserDetails?.name : vendorDetails?.name,
@@ -138,7 +139,7 @@ function VendorProfile() {
         "x-access-token": localStorage.getItem("accessToken"),
       },
     };
-    const url = "http://localhost:3001/api/vendor/profile-img";
+    const url = `${BaseURL}/vendor/profile-img`;
     const data = await axios.put(url, formData, headers).catch((error) => {
       console.log("error ==>", error);
       if (error) {
@@ -169,7 +170,7 @@ function VendorProfile() {
   const getShopList = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3001/api/Stores/getAllStores",
+        `${BaseURL}/Stores/getAllStores`,
         {
           headers: {
             "Content-Type": "application/json",

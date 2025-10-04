@@ -10,6 +10,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 import { AiFillEye } from "react-icons/ai";
 import { BsFillEyeSlashFill } from "react-icons/bs";
+import { BaseURL } from '../../URL';
 
 function ForgotPassword() {
     const navigate = useNavigate();
@@ -128,7 +129,7 @@ function ForgotPassword() {
             setLoginFormErrors(handleValidationObject)
         } else {
             setLoader(true)
-            const sentOTPApi = await axios.post(`http://localhost:3001/api/otp/sendOtp/${loginForm?.phone}`)
+            const sentOTPApi = await axios.post(`${BaseURL}/otp/sendOtp/${loginForm?.phone}`)
                 .then((response) => {
                     console.log('response', response);
                     console.log("SHOP--->", response?.data?.data?.shops)
@@ -166,7 +167,7 @@ function ForgotPassword() {
         } else {
             setLoader(true)
             try {
-                const response = await axios.post(`http://localhost:3001/api/otp/verifyOtp`, {
+                const response = await axios.post(`${BaseURL}/otp/verifyOtp`, {
                     otp: otpData.otp,
                     phone: loginForm.phone
                 });
@@ -201,7 +202,7 @@ function ForgotPassword() {
         } else {
             setLoader(true)
             try {
-                const response = await axios.patch(`http://localhost:3001/api/vendor/ChangeVendorpassword`, {
+                const response = await axios.patch(`${BaseURL}/vendor/ChangeVendorpassword`, {
                     phone: loginForm.phone, password: password.confirmPassword
                 });
                 if (response?.status === 200) {

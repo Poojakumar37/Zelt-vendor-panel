@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import AuthServices from "../../authServices/AuthServices";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { BaseURL } from "../../../URL";
 
 const image = require("../../../assets/imagesCustomer/image.png");
 
@@ -91,7 +92,7 @@ function ManageSchemes() {
   const getAllScheme = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3001/api/Scheme/getAllScheme",
+        `${BaseURL}/Scheme/getAllScheme`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -128,7 +129,7 @@ function ManageSchemes() {
       formData.append("Description", description ? description : shopdetails?.Description);
       formData.append("TermsConditions", termcondition ? termcondition : shopdetails?.TermsConditions);
       const schemeCreation = await axios.patch(
-        `http://localhost:3001/api/Scheme/editScheme`,
+        `${BaseURL}/Scheme/editScheme`,
         formData,
         {
           headers: {
@@ -151,7 +152,7 @@ function ManageSchemes() {
   const deleteScheme = async (id) => {
     if (window.confirm("Are you sure you want to delete...?")) {
       const data = await axios
-        .patch(`http://localhost:3001/api/Scheme/deleteScheme/${id}`, {}, {
+        .patch(`${BaseURL}/Scheme/deleteScheme/${id}`, {}, {
           headers: {
             "x-access-token": localStorage.getItem("accessToken"),
           },

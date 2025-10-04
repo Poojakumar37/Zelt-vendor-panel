@@ -17,6 +17,7 @@ import axios from "axios";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { toast } from "react-toastify";
+import { BaseURL } from "../../../URL";
 
 const image = require("../../../assets/imagesCustomer/image.png");
 
@@ -50,7 +51,7 @@ function Notification() {
     const getShopList = async () => {
         try {
             const response = await axios.get(
-                "http://localhost:3001/api/Stores/getAllStores",
+                `${BaseURL}/Stores/getAllStores`,
                 {
                     headers: {
                         "Content-Type": "application/json",
@@ -83,7 +84,7 @@ function Notification() {
     const getNotificationData = async () => {
         try {
             const data = await axios.get(
-                `http://localhost:3001/api/Vendor/getAllNotification`
+                `${BaseURL}/Vendor/getAllNotification`
             );
             console.log("asfsdf", data.data.Notification);
             setAllNotification(data.data.Notification?.filter((item) => item?.deleted == false));
@@ -121,7 +122,7 @@ function Notification() {
             alert("Please enter notification")
         } else {
             const data = await axios.post(
-                `http://localhost:3001/api/Vendor/createNotification`,
+                `${BaseURL}/Vendor/createNotification`,
                 {
                     StoreID: SeletedShop,
                     VendorID: vendorDetails?._id,
@@ -153,7 +154,7 @@ function Notification() {
 
         if (window.confirm("Are you sure you want to delete...?")) {
             const data = await axios
-                .patch(`http://localhost:3001/api/Vendor/deleteNotification/${id}`,
+                .patch(`${BaseURL}/Vendor/deleteNotification/${id}`,
                     {},
                     {
                         headers: { "x-access-token": localStorage.getItem("accessToken") },

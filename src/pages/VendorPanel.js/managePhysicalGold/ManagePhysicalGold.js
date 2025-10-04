@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import AuthServices from '../../authServices/AuthServices'
 import videoImg from '../../../assets/images/video.png';
 import { IoMdCloseCircle } from "react-icons/io";
+import { BaseURL } from '../../../URL';
 // const image = require('../../../assets/imagesCustomer/image.png');
 
 function ManagePhysicalGold() {
@@ -42,10 +43,10 @@ function ManagePhysicalGold() {
     paymentOption: "",
     Description: "",
     Size: "",
-    Discount:0,
-    Making_Charges:0,
-    Wastage:0,
-    GST:0
+    Discount: 0,
+    Making_Charges: 0,
+    Wastage: 0,
+    GST: 0
     // image: '',
   })
 
@@ -63,10 +64,10 @@ function ManagePhysicalGold() {
     image: '',
     video: '',
     Description: "",
-    Discount:"",
-    Wastage:"",
-    GST:"",
-    Making_Charges:"",
+    Discount: "",
+    Wastage: "",
+    GST: "",
+    Making_Charges: "",
   })
   const [physicalBarCoinGoldForm, setPhysicalBarCoinGoldForm] = useState({
     metal: '',
@@ -105,10 +106,10 @@ function ManagePhysicalGold() {
       [e.target.weight]: e.target.value,
       [e.target.shops]: e.target.value,
       [e.target.paymentOption]: e.target.value,
-      [e.target.Discount]:e.target.value,
-      [e.target.Making_Charges]:e.target.value,
-      [e.target.Wastage]:e.target.value,
-      [e.target.GST]:e.target.value
+      [e.target.Discount]: e.target.value,
+      [e.target.Making_Charges]: e.target.value,
+      [e.target.Wastage]: e.target.value,
+      [e.target.GST]: e.target.value
     });
 
     setPhysicalGoldFormErrors({
@@ -157,7 +158,7 @@ function ManagePhysicalGold() {
 
 
   const handleValidation = () => {
-    const { name, purity, weight, shops, paymentOption, Scategory,Making_Charges,Wastage,Discount,GST } = physicalGoldForm
+    const { name, purity, weight, shops, paymentOption, Scategory, Making_Charges, Wastage, Discount, GST } = physicalGoldForm
     const newErrors = {}
     if (!checkedMetal) {
       newErrors.metal = 'please select metal type'
@@ -226,7 +227,7 @@ function ManagePhysicalGold() {
       formData.append('Video', video);
       console.log(formData, "THIS IS FORM")
       const physicalGold = await axios.post(
-        `http://localhost:3001/api/Products/createProduct`,
+        `${BaseURL}/Products/createProduct`,
         formData,
         {
           headers: { "x-access-Token": localStorage.getItem("accessToken") },
@@ -249,10 +250,10 @@ function ManagePhysicalGold() {
           stoneCategory: '',
           stonePurity: '',
           stoneShape: '',
-          Making_Charges:0,
-          Wastage:0,
-          Discount:0,
-          GST:0
+          Making_Charges: 0,
+          Wastage: 0,
+          Discount: 0,
+          GST: 0
         })
         setAvailability(false)
         setImg()
@@ -283,17 +284,17 @@ function ManagePhysicalGold() {
     formData.append('ID', selectedProduct?._id)
     formData.append('discription', physicalGoldForm?.Description ? physicalGoldForm?.Description : selectedProduct?.discription)
     formData.append('size', physicalGoldForm?.Size ? physicalGoldForm?.Size : selectedProduct?.size)
-     formData.append('Discount', physicalGoldForm?.Discount?physicalGoldForm?.Discount:selectedProduct?.Discount)
-      formData.append('Wastage', physicalGoldForm?.Wastage? physicalGoldForm?.Wastage:selectedProduct?.Wastage )
-      formData.append('GST', physicalGoldForm?.GST? physicalGoldForm?.GST:selectedProduct?.GST )
-      formData.append('Making_Charges', physicalGoldForm?.Making_Charges?physicalGoldForm?.Making_Charges:selectedProduct?.Making_Charges)
+    formData.append('Discount', physicalGoldForm?.Discount ? physicalGoldForm?.Discount : selectedProduct?.Discount)
+    formData.append('Wastage', physicalGoldForm?.Wastage ? physicalGoldForm?.Wastage : selectedProduct?.Wastage)
+    formData.append('GST', physicalGoldForm?.GST ? physicalGoldForm?.GST : selectedProduct?.GST)
+    formData.append('Making_Charges', physicalGoldForm?.Making_Charges ? physicalGoldForm?.Making_Charges : selectedProduct?.Making_Charges)
     img?.forEach((image, index) => {
       formData.append(`Image`, image); // Note: same field name for all images
     });
     formData.append('Video', video ? video : selectedProduct?.Video);
     console.log(formData, "THIS IS FORM")
     const physicalGold = await axios.patch(
-      `http://localhost:3001/api/Products/editProduct`,
+      `${BaseURL}/Products/editProduct`,
       formData,
       {
         headers: { "x-access-Token": localStorage.getItem("accessToken") },
@@ -317,10 +318,10 @@ function ManagePhysicalGold() {
         stoneCategory: '',
         stonePurity: '',
         stoneShape: '',
-         Making_Charges:0,
-          Wastage:0,
-          Discount:0,
-          GST:0
+        Making_Charges: 0,
+        Wastage: 0,
+        Discount: 0,
+        GST: 0
       })
       setAvailability(false)
       setImg()
@@ -343,7 +344,7 @@ function ManagePhysicalGold() {
   const deleteImage = async (productId, imageId) => {
     try {
       const response = await axios.delete(
-        `http://localhost:3001/api/Products/deleteImage`,
+        `${BaseURL}/Products/deleteImage`,
         {
           data: { productID: productId, imageID: imageId },
           headers: { "x-access-Token": localStorage.getItem("accessToken") }
@@ -533,7 +534,7 @@ function ManagePhysicalGold() {
 
   const GetCategory = () => {
     let token = localStorage.getItem('accessToken');
-    axios.get("http://localhost:3001/api/admin/category", {
+    axios.get(`${BaseURL}/admin/category`, {
       headers: {
         "x-access-token": token
       }
@@ -549,7 +550,7 @@ function ManagePhysicalGold() {
   const getShopList = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3001/api/Stores/getAllStores",
+        `${BaseURL}/Stores/getAllStores`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -569,7 +570,7 @@ function ManagePhysicalGold() {
   const getProductList = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3001/api/Products/getAllProduct",
+        `${BaseURL}/Products/getAllProduct`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -588,7 +589,7 @@ function ManagePhysicalGold() {
   };
 
   function selecteProduct(prod) {
-    seteditJewelleryModal(true); 
+    seteditJewelleryModal(true);
     setSelectedProduct(prod);
     //  setPhysicalGoldForm({
     //   ...physicalGoldForm,
@@ -596,18 +597,18 @@ function ManagePhysicalGold() {
     //   [physicalGoldForm.Making_Charges]:prod?.Making_Charges,
     //   [physicalGoldForm.Wastage]:prod?.Wastage
     // });
-       setPhysicalGoldForm({
+    setPhysicalGoldForm({
       ...physicalGoldForm,
       Wastage: prod?.Wastage,
-      Making_Charges:prod?.Making_Charges,
-      Discount:prod?.Discount,
-      GST:prod?.GST
+      Making_Charges: prod?.Making_Charges,
+      Discount: prod?.Discount,
+      GST: prod?.GST
     });
   }
 
 
   console.log("selectedProduct", selectedProduct);
-console.log("physicalGoldForm?.Wastage",physicalGoldForm?.Wastage);
+  console.log("physicalGoldForm?.Wastage", physicalGoldForm?.Wastage);
 
 
   return (
@@ -706,11 +707,11 @@ console.log("physicalGoldForm?.Wastage",physicalGoldForm?.Wastage);
                           </td>
                           <td>
                             <Figure onClick={() => {
-                            const videoUrl = prod?.Video;
-                            if (!videoUrl) return;
+                              const videoUrl = prod?.Video;
+                              if (!videoUrl) return;
 
-                            const newWindow = window.open('', '_blank');
-                            newWindow.document.write(`
+                              const newWindow = window.open('', '_blank');
+                              newWindow.document.write(`
     <!DOCTYPE html>
     <html>
       <head>
@@ -728,16 +729,16 @@ console.log("physicalGoldForm?.Wastage",physicalGoldForm?.Wastage);
       </body>
     </html>
   `);
-                            newWindow.document.close();
-                          }}>
-                            <Figure.Image
-                              width={30}
-                              height={30}
-                              // alt="171x180"
-                              src={videoImg}
-                              style={{ margin: 2 }}
-                            />
-                          </Figure></td>
+                              newWindow.document.close();
+                            }}>
+                              <Figure.Image
+                                width={30}
+                                height={30}
+                                // alt="171x180"
+                                src={videoImg}
+                                style={{ margin: 2 }}
+                              />
+                            </Figure></td>
                           {/* <td>RS. {prod?.price} /-</td> */}
                           <td>{prod?.Weight} gms</td>
                           {/* <td>ring</td> */}
@@ -1049,7 +1050,7 @@ console.log("physicalGoldForm?.Wastage",physicalGoldForm?.Wastage);
               </Form.Group>
             </Col>
           </Row>
-            <Row>
+          <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Making Charges (%)</Form.Label>
@@ -1065,7 +1066,7 @@ console.log("physicalGoldForm?.Wastage",physicalGoldForm?.Wastage);
                   required
                   value={physicalGoldForm?.Making_Charges}
                 />
-               {/*<span className="text-danger">{physicalGoldFormErrors?.Making_Charges}</span>*/} 
+                {/*<span className="text-danger">{physicalGoldFormErrors?.Making_Charges}</span>*/}
               </Form.Group>
             </Col>
             <Col md={6}>
@@ -1088,7 +1089,7 @@ console.log("physicalGoldForm?.Wastage",physicalGoldForm?.Wastage);
             </Col>
           </Row>
           <Row>
-        <Col md={6}>
+            <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Discount (%)</Form.Label>
                 <Form.Control
@@ -1433,7 +1434,7 @@ console.log("physicalGoldForm?.Wastage",physicalGoldForm?.Wastage);
               </Form.Group>
             </Col>
           </Row>
-               <Row>
+          <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Making Charges (%)</Form.Label>
@@ -1449,7 +1450,7 @@ console.log("physicalGoldForm?.Wastage",physicalGoldForm?.Wastage);
                   required
                   value={physicalGoldForm?.Making_Charges}
                 />
-               {/*<span className="text-danger">{physicalGoldFormErrors?.Making_Charges}</span>*/} 
+                {/*<span className="text-danger">{physicalGoldFormErrors?.Making_Charges}</span>*/}
               </Form.Group>
             </Col>
             <Col md={6}>
@@ -1471,8 +1472,8 @@ console.log("physicalGoldForm?.Wastage",physicalGoldForm?.Wastage);
               </Form.Group>
             </Col>
           </Row>
-          <Row> 
-          <Col md={6}>
+          <Row>
+            <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Discount (%)</Form.Label>
                 <Form.Control
@@ -1489,7 +1490,7 @@ console.log("physicalGoldForm?.Wastage",physicalGoldForm?.Wastage);
                 />
               </Form.Group>
             </Col>
-                  <Col md={6}>
+            <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>GST (%)</Form.Label>
                 <Form.Control
@@ -1507,17 +1508,17 @@ console.log("physicalGoldForm?.Wastage",physicalGoldForm?.Wastage);
               </Form.Group>
             </Col>
             <Col md={6}>
-            <Form.Group className="mb-3">
-              <Form.Label></Form.Label>
-              <Form.Check
-                type="switch"
-                id="custom-switch"
-                label="Availability"
-                checked={availability}
-                onChange={(e) => setAvailability(e?.target?.checked)}
-              />
-            </Form.Group>
-          </Col></Row>
+              <Form.Group className="mb-3">
+                <Form.Label></Form.Label>
+                <Form.Check
+                  type="switch"
+                  id="custom-switch"
+                  label="Availability"
+                  checked={availability}
+                  onChange={(e) => setAvailability(e?.target?.checked)}
+                />
+              </Form.Group>
+            </Col></Row>
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={() => seteditJewelleryModal(false)} variant="secondary">

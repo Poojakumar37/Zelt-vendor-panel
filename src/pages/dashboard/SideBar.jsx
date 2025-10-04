@@ -43,6 +43,7 @@ import axios from "axios";
 import { AgGridReact } from "ag-grid-react";
 import logozelt from '../../assets/imagesCustomer/logozelt.png'
 import moment from 'moment'
+import { BaseURL } from '../../URL'
 
 
 
@@ -67,7 +68,7 @@ function SideBar({ Navigation }) {
 
   const liveRateData = async () => {
     try {
-      const liveData = await axios.get("http://localhost:3001/api/user/live-rate",
+      const liveData = await axios.get(`${BaseURL}/user/live-rate`,
         {
           headers: {
             "x-access-token": localStorage.getItem("accessToken"),
@@ -91,7 +92,7 @@ function SideBar({ Navigation }) {
 
   const Goldrate = () => {
     const token = localStorage.getItem('accessToken');
-    axios.get("http://localhost:3001/api/admin/goldraterouter/getgoldrateAsperdate", {
+    axios.get(`${BaseURL}/admin/goldraterouter/getgoldrateAsperdate`, {
       headers: {
         "x-access-token": token
       },
@@ -206,6 +207,11 @@ function SideBar({ Navigation }) {
     icon: <HiUserGroup className='icons' />
   },
   {
+    path: '/Wallete',
+    name: 'Wallete',
+    icon: <HiUserGroup className='icons' />
+  },
+  {
     path: '/Notification',
     name: 'Notification',
     icon: <IoMdNotificationsOutline className='icons' />
@@ -236,7 +242,7 @@ function SideBar({ Navigation }) {
 
 
   const getvendors = () => {
-    axios.get(`http://localhost:3001/api/Vendor/getvendors/${vendorDetails?._id}`, {
+    axios.get(`${BaseURL}/Vendor/getvendors/${vendorDetails?._id}`, {
       headers: {
         "x-access-token": localStorage.getItem("accessToken") // Ensure token is passed
       }
@@ -281,9 +287,8 @@ function SideBar({ Navigation }) {
           <div className='w-100 m-2'>
             <h1 className='fs-2'>Zelt</h1>
           </div>
-
         </div>
-        <div className='w-100 '>
+        {/* <div className='w-100 '>
           <div className='d-flex p-3' style={{ backgroundColor: '#dceaf8' }} >
             <img src={userDetails?.image} width="25%" height="20%" className="m-1" />
 
@@ -292,7 +297,7 @@ function SideBar({ Navigation }) {
               <h3 className=' m-1 fw-bold' style={{ fontSize: '15px' }}>{userDetails?.email}</h3>
             </div>
           </div>
-        </div>
+        </div> */}
         <div className="sidebar-content mt-4">
           {VendorScreens.map((nav, i) => (
             <p key={i} className={`cursor fs-6 pt-2 pb-1 px-2 m-0 fw-bold ${location.pathname === nav.path ? 'active' : ''}`}>

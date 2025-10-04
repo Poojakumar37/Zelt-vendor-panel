@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios'
 import { Chart } from "react-google-charts";
 import moment from 'moment'
+import { BaseURL } from '../../../URL'
 
 
 const image = require('../../../assets/imagesCustomer/image.png');
@@ -57,7 +58,7 @@ function Stats() {
   const getShopList = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3001/api/Stores/getAllStores",
+        `${BaseURL}/Stores/getAllStores`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -74,7 +75,7 @@ function Stats() {
   };
 
   const investData = () => {
-    axios.get(`http://localhost:3001/api/user/getSchemeOrderStoresID/${selectedShop}`, {
+    axios.get(`${BaseURL}/user/getSchemeOrderStoresID/${selectedShop}`, {
       headers: {
         "x-access-token": localStorage.getItem("accessToken"),
       }

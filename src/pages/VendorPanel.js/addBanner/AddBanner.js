@@ -17,6 +17,7 @@ import axios from "axios";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { toast } from "react-toastify";
+import { BaseURL } from "../../../URL";
 
 const image = require("../../../assets/imagesCustomer/image.png");
 
@@ -55,7 +56,7 @@ function AddBanner() {
   const getShopList = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3001/api/Stores/getAllStores",
+        `${BaseURL}/Stores/getAllStores`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -88,7 +89,7 @@ function AddBanner() {
   const getBannerData = async () => {
     try {
       const data = await axios.get(
-        `http://localhost:3001/api/Banner/getAllBanner`
+        `${BaseURL}/Banner/getAllBanner`
       );
       console.log("asfsdf", data.data.Banner);
       setAllBanner(data.data.Banner?.filter((item) => item?.deleted == false));
@@ -136,7 +137,7 @@ function AddBanner() {
       formData.append("StoreID", SeletedShop);
       formData.append("VendorID", vendorDetails?._id);
       const data = await axios.post(
-        `http://localhost:3001/api/Banner/createBanner`,
+        `${BaseURL}/Banner/createBanner`,
         formData,
         {
           headers: { "x-access-Token": localStorage.getItem("accessToken") },
@@ -161,7 +162,7 @@ function AddBanner() {
       formData.append("Status", editdata?.Status);
       formData.append("BannerID", editdata?._id);
       const data = await axios.patch(
-        `http://localhost:3001/api/Banner/editBanner`,
+        `${BaseURL}/Banner/editBanner`,
         formData,
         {
           headers: { "x-access-Token": localStorage.getItem("accessToken") },
@@ -182,7 +183,7 @@ function AddBanner() {
 
     if (window.confirm("Are you sure you want to delete...?")) {
       const data = await axios
-        .patch(`http://localhost:3001/api/Banner/deleteBanner/${id}`, {}, {
+        .patch(`${BaseURL}/Banner/deleteBanner/${id}`, {}, {
           headers: {
             "x-access-token": localStorage.getItem("accessToken"),
           },
