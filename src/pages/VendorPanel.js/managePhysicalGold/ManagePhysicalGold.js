@@ -848,7 +848,7 @@ function ManagePhysicalGold() {
                     )}
                   </Form.Select>
                 </div>
-                <span className="text-danger">{physicalGoldFormErrors?.paymentOption}</span>
+                <span className="text-danger">{physicalGoldFormErrors?.Scategory}</span>
               </Form.Group>
             </Col>
           </Row>
