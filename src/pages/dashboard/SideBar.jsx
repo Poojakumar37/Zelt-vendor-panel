@@ -186,11 +186,11 @@ function SideBar({ Navigation }) {
   //   name: 'Customer',
   //   icon: <IoStatsChart className='icons' />
   // },
-  {
-    path: '/vendorBrochure',
-    name: 'Brochure',
-    icon: <GiBookmarklet className='icons' />
-  },
+  // {
+  //   path: '/vendorBrochure',
+  //   name: 'Brochure',
+  //   icon: <GiBookmarklet className='icons' />
+  // },
   {
     path: '/AddBanner',
     name: 'Add Banner',

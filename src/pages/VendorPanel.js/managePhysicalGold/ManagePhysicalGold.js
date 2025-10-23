@@ -178,9 +178,10 @@ function ManagePhysicalGold() {
     if (shops.length == 0) {
       newErrors.shops = 'please select store'
     }
-    if (!paymentOption) {
-      newErrors.paymentOption = 'please select payment option'
-    } if (!Scategory) {
+    // if (!paymentOption) {
+    //   newErrors.paymentOption = 'please select payment option'
+    // } 
+    if (!Scategory) {
       newErrors.Scategory = "Please select category"
     }
     if (!img) {
@@ -212,7 +213,7 @@ function ManagePhysicalGold() {
       formData.append('Purity', physicalGoldForm?.purity)
       formData.append('Active', availability)
       formData.append('Weight', physicalGoldForm?.weight)
-      formData.append('Payment', physicalGoldForm?.paymentOption)
+      // formData.append('Payment', physicalGoldForm?.paymentOption)
       formData.append('StoreID', physicalGoldForm?.shops)
       formData.append('VendorID', vendorDetails?._id)
       formData.append('discription', physicalGoldForm?.Description)
@@ -244,7 +245,7 @@ function ManagePhysicalGold() {
           price: '',
           weight: '',
           shops: '',
-          paymentOption: '',
+          // paymentOption: '',
           video: '',
           stoneweight: '',
           stoneCategory: '',
@@ -280,7 +281,7 @@ function ManagePhysicalGold() {
     formData.append('Purity', physicalGoldForm?.purity ? physicalGoldForm?.purity : selectedProduct?.Purity)
     formData.append('Active', availability)
     formData.append('Weight', physicalGoldForm?.weight ? physicalGoldForm?.weight : selectedProduct?.Weight)
-    formData.append('Payment', physicalGoldForm?.paymentOption ? physicalGoldForm?.paymentOption : selectedProduct?.Payment)
+    // formData.append('Payment', physicalGoldForm?.paymentOption ? physicalGoldForm?.paymentOption : selectedProduct?.Payment)
     formData.append('ID', selectedProduct?._id)
     formData.append('discription', physicalGoldForm?.Description ? physicalGoldForm?.Description : selectedProduct?.discription)
     formData.append('size', physicalGoldForm?.Size ? physicalGoldForm?.Size : selectedProduct?.size)
@@ -312,7 +313,7 @@ function ManagePhysicalGold() {
         price: '',
         weight: '',
         shops: '',
-        paymentOption: '',
+        // paymentOption: '',
         video: '',
         stoneweight: '',
         stoneCategory: '',
@@ -373,7 +374,7 @@ function ManagePhysicalGold() {
       [e.target.price]: e.target.value,
       [e.target.weight]: e.target.value,
       [e.target.shops]: e.target.value,
-      [e.target.paymentOption]: e.target.value,
+      // [e.target.paymentOption]: e.target.value,
     });
 
     setPhysicalBarCoinGoldFormError({
@@ -386,7 +387,7 @@ function ManagePhysicalGold() {
       [e.target.price]: null,
       [e.target.weight]: null,
       [e.target.image]: null,
-      [e.target.paymentOption]: null,
+      // [e.target.paymentOption]: null,
     });
   };
 
@@ -394,9 +395,9 @@ function ManagePhysicalGold() {
     setPhysicalBarCoinGoldForm({ ...physicalBarCoinGoldForm, shops: e.target.value })
   }
 
-  const handlePaymentChangeBar = (e) => {
-    setPhysicalBarCoinGoldForm({ ...physicalBarCoinGoldForm, paymentOption: e.target.value })
-  }
+  // const handlePaymentChangeBar = (e) => {
+  //   setPhysicalBarCoinGoldForm({ ...physicalBarCoinGoldForm, paymentOption: e.target.value })
+  // }
 
   const handleMetalType = (value) => {
     console.log('handleClickMetal ee', value);
@@ -509,7 +510,7 @@ function ManagePhysicalGold() {
       price: '',
       weight: prod?.weight,
       shops: '',
-      paymentOption: '',
+      // paymentOption: '',
     })
     setCheckedMetal(prod?.metal)
     setImg(prod?.image[0])
@@ -926,6 +927,19 @@ function ManagePhysicalGold() {
             </Col>
             <Col md={6}>
               <Form.Group className="mb-3">
+                <Form.Label></Form.Label>
+                <Form.Check
+                  type="switch"
+                  id="custom-switch"
+                  label="Availability"
+                  checked={availability}
+                  onChange={(e) => setAvailability(e?.target?.checked)}
+                />
+                <span className="text-danger">{physicalGoldFormErrors?.availability}</span>
+              </Form.Group>
+            </Col>
+            {/* <Col md={6}>
+              <Form.Group className="mb-3">
                 <Form.Label>Select Payment Option</Form.Label>
                 <div className="leftedge d-flex justify-content-space">
                   <Form.Select
@@ -935,14 +949,13 @@ function ManagePhysicalGold() {
                     name="paymentOption"
                     onChange={handlePaymentChange}
                   >
-                    {/* <option >Select Payment Option</option> */}
                     <option value="offline">Offline</option>
                     <option value="online">Online</option>
                   </Form.Select>
                 </div>
                 <span className="text-danger">{physicalGoldFormErrors?.paymentOption}</span>
               </Form.Group>
-            </Col>
+            </Col> */}
 
           </Row>
           <Row>
@@ -1123,19 +1136,7 @@ function ManagePhysicalGold() {
                 />
               </Form.Group>
             </Col>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label></Form.Label>
-                <Form.Check
-                  type="switch"
-                  id="custom-switch"
-                  label="Availability"
-                  checked={availability}
-                  onChange={(e) => setAvailability(e?.target?.checked)}
-                />
-                <span className="text-danger">{physicalGoldFormErrors?.availability}</span>
-              </Form.Group>
-            </Col>
+            
           </Row>
         </Modal.Body>
         <Modal.Footer>
@@ -1304,7 +1305,7 @@ function ManagePhysicalGold() {
                 </div>
               </Form.Group>
             </Col>
-            <Col md={6}>
+            {/* <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Select Payment Option</Form.Label>
                 <div className="leftedge d-flex justify-content-space">
@@ -1323,8 +1324,19 @@ function ManagePhysicalGold() {
                   </Form.Select>
                 </div>
               </Form.Group>
+            </Col> */}
+ <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label></Form.Label>
+                <Form.Check
+                  type="switch"
+                  id="custom-switch"
+                  label="Availability"
+                  checked={availability}
+                  onChange={(e) => setAvailability(e?.target?.checked)}
+                />
+              </Form.Group>
             </Col>
-
           </Row>
           <Row>
             <Col>
@@ -1507,18 +1519,7 @@ function ManagePhysicalGold() {
                 />
               </Form.Group>
             </Col>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label></Form.Label>
-                <Form.Check
-                  type="switch"
-                  id="custom-switch"
-                  label="Availability"
-                  checked={availability}
-                  onChange={(e) => setAvailability(e?.target?.checked)}
-                />
-              </Form.Group>
-            </Col></Row>
+           </Row>
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={() => seteditJewelleryModal(false)} variant="secondary">
@@ -1674,7 +1675,7 @@ function ManagePhysicalGold() {
             </Col>
           </Row>
           <Row>
-            <Col md={6}>
+            {/* <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Select Payment Option</Form.Label>
                 <div className="leftedge d-flex justify-content-space">
@@ -1685,14 +1686,13 @@ function ManagePhysicalGold() {
                     name="paymentOption"
                     onChange={handlePaymentChangeBar}
                   >
-                    {/* <option >Select Payment Option</option> */}
                     <option value="offline">Offline</option>
                     <option value="online">Online</option>
                   </Form.Select>
                 </div>
                 <span className="text-danger">{physicalBarCoinGoldFormError?.paymentOption}</span>
               </Form.Group>
-            </Col>
+            </Col> */}
             {/* </Row>
           <Row> */}
             <Col>

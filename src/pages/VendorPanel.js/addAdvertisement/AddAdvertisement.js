@@ -13,7 +13,7 @@ import {
   InputGroup
 } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import AuthServices from "../../authServices/AuthServices";
 import "./Addavt.css";
@@ -176,20 +176,7 @@ function AddAdvertisement() {
     }
   };
 
-  const deleteBanner = async (id) => {
-    try {
-      console.log("selectedShop?.owner", selectedShop);
-      const profileData = await AuthServices?.deleteDataProduct(
-        `/shop/advert/${selectedShop}?advertId=${selectedAd?._id}`
-      );
-      if (profileData?.error === false) {
-        getAdvertisement();
-        handleCloseModal1();
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  };
+
 
   const getAdvertisement = async () => {
     try {
@@ -201,8 +188,33 @@ function AddAdvertisement() {
     } catch (error) {
       console.error(error);
     }
-
   };
+
+    const deleteAdvertise = async (id) => {
+      console.log("id", id);
+      if (window.confirm("Are you sure you want to delete...?")) {
+        const data = await axios
+          .patch(`${BaseURL}/Advertisement/deleteAdvertisement/${id}`, {}, {
+            headers: {
+              "x-access-token": localStorage.getItem("accessToken"),
+            },
+          })
+          .catch((error) => {
+            console.log("error ==>", error);
+          });
+        console.log("store updated  ===> ", data);
+        if (data.status === 200) {
+          toast.success("Scheme deleted successfully", {
+            position: "top-center",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            theme: "light",
+          });
+          getAdvertisement()
+        }
+      }
+    };
 
   useEffect(() => {
     if (SeletedShop1) {
@@ -281,9 +293,9 @@ function AddAdvertisement() {
                       <div className="col font-weight-bold">Name</div>
 
                       <div class="col-1 font-weight-bold">
-
                         Image
                       </div>
+ <div className="col font-weight-bold">Delete</div>    
                     </div>
                   </thead>
 
@@ -300,6 +312,17 @@ function AddAdvertisement() {
                           <div class="col-1 pr-2">
 
                             <img className="img-fluid img-size" src={e?.Image} alt="img" />
+                          </div>
+                          <div className="col">
+                            <FontAwesomeIcon
+                                                    icon={faTrash}
+                                                    className="editIcon"
+                                                    style={{ color: "red" }}
+                                                    value="edit"
+                                                    onClick={() => {
+                                                      deleteAdvertise(e?._id);
+                                                    }}
+                                                  />
                           </div>
                         </div>
                       ))}
@@ -319,13 +342,11 @@ function AddAdvertisement() {
                   <div class="row striped bordered hover">
                     <div className="col font-weight-bold">S.No.</div>
                     <div className="col font-weight-bold">Status</div>
-
                     <div className="col font-weight-bold">Name</div>
-
                     <div class="col-1 font-weight-bold">
-
                       Image
                     </div>
+                     <div className="col font-weight-bold">Delete</div>
                   </div>
                   <tbody>
                     {advert
@@ -338,8 +359,18 @@ function AddAdvertisement() {
                           <div className="col shift">{e?.Heading}</div>
 
                           <div class="col-1 pr-2">
-
-                            <img className="img-fluid" src={e?.Image} alt="img" />
+   <img className="img-fluid" src={e?.Image} alt="img" />
+                          </div>
+                          <div className="col">
+                            <FontAwesomeIcon
+                                                    icon={faTrash}
+                                                    className="editIcon"
+                                                    style={{ color: "red" }}
+                                                    value="edit"
+                                                    onClick={() => {
+                                                      deleteAdvertise(e?._id);
+                                                    }}
+                                                  />
                           </div>
                         </div>
                       ))
@@ -476,7 +507,7 @@ function AddAdvertisement() {
             </Row>
           </Modal.Body>
           <Modal.Footer>
-            <Button onClick={deleteBanner} variant="warning">
+            <Button variant="warning">
               Delete
             </Button>
             <Button onClick={handleCloseModal1} variant="secondary">

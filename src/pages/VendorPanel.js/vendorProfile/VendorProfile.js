@@ -356,7 +356,6 @@ function VendorProfile() {
                 <Form.Group className="mb-3">
                   <Form.Label>Phone Number</Form.Label>
                   <Form.Control
-                    maxLength={50}
                     type="tele"
                     placeholder={vendorDetails?.phoneNumber}
                     size="sm"
@@ -365,6 +364,7 @@ function VendorProfile() {
                     onChange={handleChange}
                     autoComplete="off"
                     className="mb-3"
+                    maxLength={10}
                   />
                   <span className="text-danger">
                     {editUserDetailsErrors?.phone}
