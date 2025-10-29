@@ -71,17 +71,17 @@ function CustomersList() {
     };
 
     const investData = () => {
-        axios.get(`${BaseURL}/user/getSchemeOrderStoresID/${selectedShop}`, {
+        axios.get(`${BaseURL}/user/getUserAsperStoreId/${selectedShop}`, {
             headers: {
                 "x-access-token": localStorage.getItem("accessToken"),
             }
         }).then((response) => {
             if (response.status === 200) {
-                console.log("API Response:", response.data.SchemeOrder);  // Check the API data
-                setInvestmentData(response.data.SchemeOrder);
+                console.log("API Response:", response.data.User);  // Check the API data
+                setCustomerList(response.data.User);
             } else {
                 console.error("Error fetching data:", response);
-                setInvestmentData([]);  // Ensure state updates
+                setCustomerList([]);  // Ensure state updates
             }
         }).catch((error) => {
             console.error("Axios Error:", error);
@@ -230,9 +230,9 @@ function CustomersList() {
                                             CustomerList?.map((Customer, i) => (
                                                 <tr key={i}>
                                                     <td>{i + 1}</td>
-                                                    <td>{Customer?.UserID?.name}</td>
-                                                    <td>{Customer?.UserID?.phone}</td>
-                                                    <td> {Customer?.UserID?.email}</td>
+                                                    <td>{Customer?.name}</td>
+                                                    <td>{Customer?.phone}</td>
+                                                    <td> {Customer?.email}</td>
                                                     <td>
                                                         <Link to="/CustomersScheme" state={{ Customer: Customer }}>
                                                             <FontAwesomeIcon

@@ -111,13 +111,14 @@ function Wallete() {
     const filteredData = Wallete?.filter((item) => {
       const searchLower = searchText.toLowerCase().trim();
       const nameMatch = item?.userId?.name?.toLowerCase().includes(searchLower);
+      const phoneMatch = item?.userId?.phone?.toLowerCase().includes(searchLower);
       const paymentMatch = item?.PaymentID?.toLowerCase().includes(searchLower);
       const dateMatch = item?.date?.toLowerCase().includes(searchLower);
       const amountMatch = item?.Amount?.toString().includes(searchText);
       const goldRateMatch = item?.goldRate?.toString().includes(searchText);
 
       return (
-        nameMatch || paymentMatch || dateMatch || amountMatch || goldRateMatch
+        nameMatch || phoneMatch || paymentMatch || dateMatch || amountMatch || goldRateMatch
       );
     });
 
@@ -142,10 +143,10 @@ function Wallete() {
   const handleDownload = async () => {
     try {
       setDownloading(true);
-      
+
       // Dynamically import html2canvas
       const html2canvas = (await import('html2canvas')).default;
-      
+
       const canvas = await html2canvas(invoiceRef.current, {
         backgroundColor: '#ffffff',
         scale: 2,
@@ -171,6 +172,10 @@ function Wallete() {
       toast.error('Failed to download invoice. Please try again.');
     }
   };
+
+
+
+
 
   console.log("Wallete", Wallete);
   console.log("selectedShop", selectedShop);
@@ -219,7 +224,7 @@ function Wallete() {
                     <Form.Group>
                       <Form.Control
                         type="text"
-                        placeholder="Search by Name, Date, Payment ID, Amount..."
+                        placeholder="Search by Name,Phone number, Date, Payment ID, Amount..."
                         size="sm"
                         name="search"
                         value={search}
@@ -237,6 +242,7 @@ function Wallete() {
                       <th>#</th>
                       <th>Date</th>
                       <th>Customer Name</th>
+                      <th>Phone Number</th>
                       <th>Amount</th>
                       <th>Gold Rate</th>
                       <th>PaymentID</th>
@@ -250,6 +256,7 @@ function Wallete() {
                           <td>{i + 1}</td>
                           <td>{item?.date}</td>
                           <td>{item?.userId?.name}</td>
+                          <td>{item?.userId?.phone}</td>
                           <td>{item?.Amount}</td>
                           <td>{item?.goldRate}</td>
                           <td>{item?.PaymentID}</td>
@@ -367,7 +374,7 @@ function Wallete() {
                         <div style={invoiceStyles.summaryRow}>
                           <span style={invoiceStyles.totalLabel}>Total Payable:</span>
                           <span style={invoiceStyles.totalValue}>
-                            {formatCurrency(parseInt(selectedWalletItem?.Amount) + parseInt(selectedWalletItem?.PlatformFee) )}
+                            {formatCurrency(parseInt(selectedWalletItem?.Amount) + parseInt(selectedWalletItem?.PlatformFee))}
                           </span>
                         </div>
                       </div>

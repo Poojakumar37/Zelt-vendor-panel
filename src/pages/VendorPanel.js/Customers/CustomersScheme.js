@@ -58,7 +58,7 @@ function CustomersScheme() {
     }, [Customer]);
 
     const investData = () => {
-        axios.get(`${BaseURL}/user/getSchemeOrderUserID/${Customer?.UserID?._id}`, {
+        axios.get(`${BaseURL}/user/getSchemeOrderUserID/${Customer?._id}`, {
             headers: {
                 "x-access-token": localStorage.getItem("accessToken"),
             }
@@ -78,7 +78,7 @@ function CustomersScheme() {
 
     const GenerateOtp = async (item) => {
         {
-            const sentOTPApi = await axios.post(`http://192.168.21.53:3001/api/otp/sendOtp/${Customer?.UserID?.phone}`);
+            const sentOTPApi = await axios.post(`${BaseURL}/otp/sendOtp/${Customer?.phone}`);
             if (sentOTPApi.status == 200) {
                 console.log("sentOTPApi.data.otp,", sentOTPApi.data.otp,);
                 setCloseModal(true);
@@ -96,9 +96,9 @@ function CustomersScheme() {
             alert("Please enter OTP");
         }
         try {
-            const response = await axios.post(`http://192.168.21.53:3001/api/otp/verifyOtp`, {
+            const response = await axios.post(`${BaseURL}/otp/verifyOtp`, {
                 otp: OTP,
-                phone: Customer?.UserID?.phone
+                phone: Customer?.phone
             });
             if (response.status === 200) {
                 closeSchemeOrder(data);
@@ -111,9 +111,8 @@ function CustomersScheme() {
 
     const closeSchemeOrder = async (data) => {
         console.log("sfsd", data, ((data?.Investment?.reduce((a, b) => a + parseInt(b?.Amount), 0)) / parseInt(goldrate))?.toFixed(2),);
-
         try {
-            const response = await axios.patch(`http://192.168.21.53:3001/api/user/closeSchemeOrder`, {
+            const response = await axios.patch(`${BaseURL}/user/closeSchemeOrder`, {
                 id: data?._id,
                 TotaConsolidatedAmount: data?.Investment?.reduce((a, b) => a + b?.Amount, 0),
                 TotalGoldGram: data?.SchemeName === "SAMRUDDHI" ? (data?.Investment?.reduce((a, b) => a + (parseInt(b?.Amount) / parseInt(b?.GoldRateondate)), 0)?.toFixed(2)) : ((data?.Investment?.reduce((a, b) => a + parseInt(b?.Amount), 0)) / parseInt(goldrate))?.toFixed(2),
@@ -149,10 +148,10 @@ function CustomersScheme() {
     const handleDownload = async () => {
         try {
             setDownloading(true);
-            
+
             // Dynamically import html2canvas
             const html2canvas = (await import('html2canvas')).default;
-            
+
             const canvas = await html2canvas(invoiceRef.current, {
                 backgroundColor: '#ffffff',
                 scale: 2,
@@ -198,7 +197,7 @@ function CustomersScheme() {
                                 </Col>
                             </Row>
                             <Row>
-                                <h3 className="text1">{Customer?.UserID?.name}</h3>
+                                <h3 className="text1">{Customer?.name}</h3>
                             </Row>
                             <hr />
                             <Card className="p-2">
@@ -377,13 +376,13 @@ function CustomersScheme() {
                                     <div style={invoiceStyles.detailRow}>
                                         <span style={invoiceStyles.detailLabel}>Name:</span>
                                         <span style={invoiceStyles.detailValue}>
-                                            {Customer?.UserID?.name}
+                                            {Customer?.name}
                                         </span>
                                     </div>
                                     <div style={invoiceStyles.detailRow}>
                                         <span style={invoiceStyles.detailLabel}>Mobile:</span>
                                         <span style={invoiceStyles.detailValue}>
-                                            {Customer?.UserID?.phone}
+                                            {Customer?.phone}
                                         </span>
                                     </div>
                                 </div>
@@ -649,7 +648,7 @@ function CustomersScheme() {
                     }
                 </Modal.Footer>
             </Modal>
-        </div >
+        </div>
     );
 }
 

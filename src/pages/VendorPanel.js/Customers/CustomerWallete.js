@@ -9,6 +9,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import moment from "moment/moment";
 import { BaseURL } from "../../../URL";
+import { use } from "react";
 
 const image = require("../../../assets/imagesCustomer/image.png");
 
@@ -21,16 +22,38 @@ function CustomerWallete() {
     const [InvoiceModal, setInvoiceModal] = useState(false);
     const [selectedWalletItem, setSelectedWalletItem] = useState(null);
     const [downloading, setDownloading] = useState(false);
+    const [CustomerGold, setCustomerGold] = useState()
+    const [ProductName, setProductName] = useState()
+    const [OTP, setOTP] = useState();
+    const [remedModal, setremedModal] = useState(false);
+    const [CloseModal, setCloseModal] = useState(false);
+    const [data, setdata] = useState({});
+    const [Status, setStatus] = useState(false);
+    const [remedgold, setremedgold] = useState(0)
+
+    const [vendorDetails] = useState(
+        JSON.parse(localStorage.getItem("vendorDetails"))
+    );
+
+    const handleShowremedModal = () => {
+        setremedModal(true);
+    }
+
+
+    const handleShowCloseModal = (item) => {
+
+    }
 
     useEffect(() => {
         if (Customer && selectedShop) {
             getWallete();
+            getWalletepurches()
         }
     }, [Customer, selectedShop]);
 
     const getWallete = async () => {
         console.log("functioncalled");
-        axios.get(`${BaseURL}/user/Wallete/${Customer?.UserID?._id}/${selectedShop}`, {
+        axios.get(`${BaseURL}/user/Wallete/${Customer?._id}/${selectedShop}`, {
             headers: {
                 "x-access-token": localStorage.getItem("accessToken"),
             }
@@ -47,6 +70,29 @@ function CustomerWallete() {
             setWallete([]);
         });
     };
+
+
+    const getWalletepurches = async () => {
+        axios.get(`${BaseURL}/user/walletepurches/${Customer?._id}/${selectedShop}`, {
+            headers: {
+                "x-access-token": localStorage.getItem("accessToken"),
+            }
+        }).then((response) => {
+            if (response.status === 200) {
+                setWallete(response.data.walletepurches);
+                const remedgold = response?.data?.walletepurches?.reduce((a, b) => a + b.gold, 0)
+                console.log("remedgold", remedgold);
+                setremedgold(remedgold);
+            } else {
+                console.error("Error fetching data:", response);
+                setWallete([]);
+            }
+        }).catch((error) => {
+            console.error("Axios Error:", error);
+            setWallete([]);
+        });
+    };
+
 
     const handleViewInvoice = (item) => {
         setSelectedWalletItem(item);
@@ -66,10 +112,10 @@ function CustomerWallete() {
     const handleDownload = async () => {
         try {
             setDownloading(true);
-            
+
             // Dynamically import html2canvas
             const html2canvas = (await import('html2canvas')).default;
-            
+
             const canvas = await html2canvas(invoiceRef.current, {
                 backgroundColor: '#ffffff',
                 scale: 2,
@@ -96,7 +142,76 @@ function CustomerWallete() {
         }
     };
 
-    console.log("Wallete", selectedShop);
+
+    const GenerateOtp = async () => {
+        if (!CustomerGold) {
+            toast.error('Please enter gold');
+        } else if (!ProductName) {
+            toast.error('Please enter Product name');
+        } else {
+            const sentOTPApi = await axios.post(`${BaseURL}/otp/sendOtp/${Customer?.phone}`);
+            if (sentOTPApi.status == 200) {
+                console.log("sentOTPApi.data.otp,", sentOTPApi.data.otp,);
+                setCloseModal(true);
+                setStatus(true);
+                setremedModal(false)
+            } else {
+                toast.error('Bad Request');
+            }
+        }
+    };
+
+    const handleSubmit = async (data) => {
+        if (!OTP) {
+            alert("Please enter OTP");
+        }
+        try {
+            const response = await axios.post(`${BaseURL}/otp/verifyOtp`, {
+                otp: OTP,
+                phone: Customer?.phone
+            });
+            if (response.status === 200) {
+                buyGold(data);
+            }
+        } catch (error) {
+            console.error("OTP verification failed:", error);
+            alert(error?.response?.data?.message);
+        }
+    };
+
+    const todatydate = moment().format("DD-MM-YYYY")
+    const buyGold = async (data) => {
+        try {
+            const response = await axios.post(`${BaseURL}/user/walletepurches`, {
+                userId: Customer?._id,
+                vendorId: vendorDetails?._id,
+                StoresID: selectedShop,
+                gold: CustomerGold,
+                date: todatydate,
+                ProductName: ProductName
+            }, {
+                headers: {
+                    "x-access-token": localStorage.getItem("accessToken"),
+                }
+            });
+            if (response.status === 200) {
+                alert("wallet remeded successfully");
+                setStatus(false);
+                setCloseModal(false)
+                getWalletepurches()
+            }
+        } catch (error) {
+            console.error("OTP verification failed:", error);
+            alert(error?.response?.data?.message);
+        }
+    };
+
+
+
+    const totalAmount = Wallete?.reduce((a, b) => a + b.Amount, 0)
+    const totalgold = Wallete?.reduce((a, b) => a + (b.Amount / b.goldRate), 0)
+
+    console.log("Wallete", remedgold);
 
     return (
         <div>
@@ -110,11 +225,31 @@ function CustomerWallete() {
                     <div>
                         <Card className="p-2">
                             <Row>
-                                <Col md={4}>
+                                <Col md={4}><h3 className="text1">{Customer?.name}</h3></Col>
+
+                                <Col md={5}>
+                                    <Row>
+                                        <Col md={4}>Total Amount : </Col>
+                                        <Col>{totalAmount}</Col>
+                                    </Row>
+                                    <Row>
+                                        <Col md={4}>Total Gold :</Col>
+                                        <Col>{totalgold?.toFixed(3)} gm</Col>
+                                    </Row>
+                                    <Row style={{ color: "red", fontWeight: "bold" }}>
+                                        <Col md={4}>Remeded Gold :</Col>
+                                        <Col>{remedgold?.toFixed(3)} gm</Col>
+                                    </Row>
+                                    <Row style={{ color: "green", fontWeight: "bold" }}>
+                                        <Col md={4}>Remaining Gold :</Col>
+                                        <Col>{(totalgold - remedgold)?.toFixed(3)} gm</Col>
+                                    </Row>
                                 </Col>
-                            </Row>
-                            <Row>
-                                <h3 className="text1">{Customer?.UserID?.name}</h3>
+                                <Col md={2}>
+                                    <Button variant="warning" onClick={handleShowremedModal} >
+                                        Remed
+                                    </Button>
+                                </Col>
                             </Row>
                             <hr />
                             <Card className="p-2">
@@ -131,7 +266,7 @@ function CustomerWallete() {
                                     </thead>
                                     <tbody>
                                         {Wallete?.length > 0 ? (
-                                            Wallete.map((item, i) => (
+                                            Wallete?.map((item, i) => (
                                                 <tr key={i}>
                                                     <td>{i + 1}</td>
                                                     <td>{item?.date}</td>
@@ -211,13 +346,13 @@ function CustomerWallete() {
                                                 <div style={invoiceStyles.detailRow}>
                                                     <span style={invoiceStyles.detailLabel}>Name:</span>
                                                     <span style={invoiceStyles.detailValue}>
-                                                        {selectedWalletItem?.userId?.name || Customer?.UserID?.name}
+                                                        {selectedWalletItem?.userId?.name || Customer?.name}
                                                     </span>
                                                 </div>
                                                 <div style={invoiceStyles.detailRow}>
                                                     <span style={invoiceStyles.detailLabel}>Mobile:</span>
                                                     <span style={invoiceStyles.detailValue}>
-                                                        {selectedWalletItem?.userId?.phone || Customer?.UserID?.phone}
+                                                        {selectedWalletItem?.userId?.phone || Customer?.phone}
                                                     </span>
                                                 </div>
                                             </div>
@@ -294,6 +429,90 @@ function CustomerWallete() {
                     </div>
                 </div>
             </div>
+            <Modal
+                show={remedModal}
+                onHide={() => setremedModal(false)}
+                backdrop="static"
+                keyboard={false}
+                centered
+                size="lg"
+            >
+                <Modal.Body>
+                    <h3 className="headertext text-center">{Customer?.name} - {Customer?.phone}</h3>
+                    <Card className="p-5" style={{ overflow: "hidden" }}>
+                        <p>Enter the Gold customer want's to remed</p>
+                        <input style={{ width: "50%", borderRadius: 10, padding: 5 }} placeholder="Enter Gold in gm" onChange={(e) => setCustomerGold(e.target.value)} />
+                        <p style={{ marginTop: 30 }}>Enter Product Name</p>
+                        <input style={{ width: "50%", borderRadius: 10, padding: 5 }} placeholder="Enter Product Name" onChange={(e) => setProductName(e.target.value)} />
+                    </Card>
+                </Modal.Body>
+                <Modal.Footer>
+
+                    <Button onClick={() => setremedModal(false)} variant="secondary">
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="warning"
+                        onClick={() => {
+                            GenerateOtp();
+                        }}
+                    >
+                        Send OTP
+                    </Button>
+
+                </Modal.Footer>
+            </Modal>
+            <Modal
+                show={CloseModal}
+                onHide={() => setCloseModal(false)}
+                backdrop="static"
+                keyboard={false}
+                centered
+                size="lg"
+            >
+                <Modal.Body>
+                    <h3 className="headertext text-center">Verify OTP</h3>
+                    <Card className="p-5" style={{ overflow: "hidden" }}>
+                        {Status ?
+                            <Row>
+                                <Col md={2}></Col>
+                                <Col md={6}>
+                                    <Form.Group>
+                                        <Form.Control
+                                            type="number"
+                                            placeholder="Enter OTP"
+                                            size="sm"
+                                            name="Subtitle"
+                                            onChange={(e) => setOTP(e.target.value)}
+                                            autoComplete="off"
+                                            className="mb-3"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={4}>
+                                    <button style={{ backgroundColor: "#4287f5", color: "white", border: "none", padding: "5px" }}
+                                        onClick={() => handleSubmit(data)}
+                                    >
+                                        Verify OTP
+                                    </button>
+                                </Col>
+                            </Row>
+                            : (<>
+
+                            </>)
+                        }
+                    </Card>
+                </Modal.Body>
+                <Modal.Footer>
+                    {
+                        Status ? <></> : (<>
+                            <Button onClick={() => setCloseModal(false)} variant="secondary">
+                                Cancel
+                            </Button>
+                        </>)
+                    }
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 }
