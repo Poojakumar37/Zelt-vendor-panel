@@ -132,6 +132,9 @@ function CustomersList() {
     console.log("InvestmentData", InvestmentData);
     console.log("selectedShop", selectedShop);
 
+    console.log("CustomerList", CustomerList);
+
+
     return (
         <div>
             <div class="sidebar">
