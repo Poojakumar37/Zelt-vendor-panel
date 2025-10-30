@@ -60,7 +60,6 @@ function CustomerWallete() {
         }).then((response) => {
             if (response.status === 200) {
                 setWallete(response.data.Wallete);
-                const amt = response?.data?.Wallete?.reduce((a, b) => a + parseInt(b.Amount), 0);
             } else {
                 console.error("Error fetching data:", response);
                 setWallete([]);
@@ -79,17 +78,16 @@ function CustomerWallete() {
             }
         }).then((response) => {
             if (response.status === 200) {
-                setWallete(response.data.walletepurches);
                 const remedgold = response?.data?.walletepurches?.reduce((a, b) => a + b.gold, 0)
                 console.log("remedgold", remedgold);
                 setremedgold(remedgold);
             } else {
                 console.error("Error fetching data:", response);
-                setWallete([]);
+                setremedgold(0);
             }
         }).catch((error) => {
             console.error("Axios Error:", error);
-            setWallete([]);
+            setremedgold(0);
         });
     };
 

@@ -62,29 +62,29 @@ function SideBar({ Navigation }) {
   const [userDetails, setUserDetails] = useState();
 
   useEffect(() => {
-    liveRateData();
+    // liveRateData();
     Goldrate()
   }, [])
 
-  const liveRateData = async () => {
-    try {
-      const liveData = await axios.get(`${BaseURL}/user/live-rate`,
-        {
-          headers: {
-            "x-access-token": localStorage.getItem("accessToken"),
-          }
-        });
-      if (liveData?.status === 200) {
-        console.log("liveData?.data", liveData?.data);
-        const twentyTwoKaratValue22 = parseInt(liveData?.data?.goldRatePerGram22K)?.toFixed(2);
+  // const liveRateData = async () => {
+  //   try {
+  //     const liveData = await axios.get(`${BaseURL}/user/live-rate`,
+  //       {
+  //         headers: {
+  //           "x-access-token": localStorage.getItem("accessToken"),
+  //         }
+  //       });
+  //     if (liveData?.status === 200) {
+  //       console.log("liveData?.data", liveData?.data);
+  //       const twentyTwoKaratValue22 = parseInt(liveData?.data?.goldRatePerGram22K)?.toFixed(2);
 
-        setLiveRate(twentyTwoKaratValue22)
+  //       setLiveRate(twentyTwoKaratValue22)
 
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
 
   const date = moment().format("YYYY-MM-DD")
@@ -92,18 +92,15 @@ function SideBar({ Navigation }) {
 
   const Goldrate = () => {
     const token = localStorage.getItem('accessToken');
-    axios.get(`${BaseURL}/admin/goldraterouter/getgoldrateAsperdate`, {
+    axios.get(`${BaseURL}/admin/goldraterouter`, {
       headers: {
         "x-access-token": token
-      },
-      params: {  // Use params instead of body for GET requests
-        date: date
       }
     })
       .then((response) => {
         console.log(response, "RESPONSE DATA");
         if (response.status === 200) {
-          setgrate(response?.data?.goldrate);
+          setgrate(response?.data?.goldrate[response?.data?.goldrate?.length - 1]);
         }
       })
       .catch((error) => {
@@ -277,6 +274,7 @@ function SideBar({ Navigation }) {
   };
 
 
+  console.log("sidebargoldrate", grate);
 
 
   return (

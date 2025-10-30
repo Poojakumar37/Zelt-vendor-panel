@@ -17,7 +17,9 @@ function VendorDashboard() {
   const [InvestmentData, setInvestmentData] = useState([])
   const [liveRate, setLiveRate] = useState(5000);
   const [CustomerList, setCustomerList] = useState([]);
-
+  const [Wallete, setWallete] = useState(0)
+  const [DayWallete, setDayWallete] = useState(0)
+  const [DayWalletegold, setDayWalletegold] = useState(0)
   const [vendorDetails] = useState(
     JSON.parse(localStorage.getItem("vendorDetails"))
   );
@@ -82,6 +84,7 @@ function VendorDashboard() {
   useEffect(() => {
     if (selectedShop) {
       investData()
+      getWallete()
     }
   }, [selectedShop])
 
@@ -89,26 +92,6 @@ function VendorDashboard() {
     getShopList()
   }, []);
 
-
-
-  // const totalInvestmentAmountToday = useMemo(() => {
-  //   if (!InvestmentData?.length) return 0;
-
-  //   const todayFormatted = moment().format("DD-MM-YYYY");
-
-  //   return InvestmentData.reduce((total, item) => {
-  //     if (!item?.Investment?.length) return total;
-
-  //     const todayInvestments = item.Investment.filter(investment => {
-  //       if (!investment?.InvestmentDate) return false;
-  //       return moment(investment.InvestmentDate).format("DD-MM-YYYY") === todayFormatted;
-  //     });
-
-  //     const todayTotal = todayInvestments.reduce((sum, investment) => sum + (investment?.Amount || 0), 0);
-
-  //     return total + todayTotal;
-  //   }, 0);
-  // }, [InvestmentData]);
 
 
   const todayInvestmentStats = useMemo(() => {
@@ -154,22 +137,54 @@ function VendorDashboard() {
   }, [InvestmentData])
 
   const removeDuplicateUsers = () => {
-    // Create a Map to track unique UserIDs
     const uniqueUsersMap = new Map();
-
-    // Iterate through each item in the array
     InvestmentData.forEach((item) => {
-      const userID = item?.UserID?._id; // Assuming UserID has an _id field
-
-      // If the UserID is not already in the Map, add it
+      const userID = item?.UserID?._id;
       if (!uniqueUsersMap.has(userID)) {
         uniqueUsersMap.set(userID, item);
       }
     });
-
-    // Return an array of unique users
     return Array.from(uniqueUsersMap.values());
   };
+
+
+
+  const getWallete = async () => {
+    axios
+      .get(`${BaseURL}/user/Wallete/StoresWallete/${selectedShop}`, {
+        headers: {
+          "x-access-token": localStorage.getItem("accessToken"),
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          const walletAmount = response.data.Wallete?.reduce((a, b) => a + b.Amount, 0)
+          const formattedAmount = walletAmount.toLocaleString('en-IN');
+          const DayData = response.data.Wallete?.filter((item) => item?.date === moment().format("DD-MM-YYYY"))
+          const walletAmountDay = DayData?.reduce((a, b) => a + b.Amount, 0)
+          const formattedAmount1 = walletAmountDay.toLocaleString('en-IN');
+          const walletGoldDay = DayData?.reduce((a, b) => a + (b.Amount / b.goldRate), 0)
+          setWallete(formattedAmount);
+          setDayWallete(formattedAmount1)
+          setDayWalletegold(walletGoldDay)
+        } else {
+          console.error("Error fetching data:", response);
+          setWallete(0);
+          setDayWallete(0)
+          setDayWalletegold(0)
+        }
+      })
+      .catch((error) => {
+        console.error("Axios Error:", error);
+        setWallete(0);
+        setDayWallete(0)
+        setDayWalletegold(0)
+      });
+  };
+
+
+
+
 
   // console.log("Total Investment Amount Today:", totalInvestmentAmountToday);
 
@@ -244,95 +259,139 @@ function VendorDashboard() {
                     <Card className="p-2">
                       <h3 className="text1">Statistics</h3>
                       <Row>
-                        {/* <Col md={3} className="">
-                          <Card className="p-2 background">
-                            <div className="centerAlign">
-                              <h3>Jewellery Sold</h3>
-                              <div
-                                style={{
-                                  borderRadius: 50,
-                                  height: 100,
-                                  width: 100,
-                                  border: "3px solid #BE783B",
-                                  justifyContent: "center",
-                                  alignItems: "center",
-                                  display: "flex",
-                                }}
-                              >
-                                <h1 style={{}}>
-                                  {dashboardData.productsSold
-                                    ? dashboardData.productsSold
-                                    : 0}
-                                </h1>
-                              </div>
-                            </div>
-                          </Card>
-                        </Col> */}
                         <Col md={3} className=" ">
                           <Card className="p-2 background">
-                            <h3>Schemes Sold</h3>
-                            <h6>Total</h6>
-                            <div
+                            <h3 style={{ textAlign: "center" }}>Schemes Sold</h3>
+                            <h6 style={{ textAlign: "center" }}>Total</h6>
+                            {/* <div
                               style={{
                                 borderRadius: 50,
                                 height: 100,
                                 width: 100,
-                                border: "3px solid #BE783B",
+                                // border: "3px solid #BE783B",
                                 justifyContent: "center",
                                 alignItems: "center",
                                 display: "flex",
                               }}
-                            >
-                              <h5 style={{}}>
-                                {InvestmentData?.length > 0
-                                  ? InvestmentData?.length
-                                  : 0}
-                              </h5>
-                            </div>
+                            > */}
+                            <h5 style={{ textAlign: "center" }}>
+                              {InvestmentData?.length > 0
+                                ? InvestmentData?.length
+                                : 0}
+                            </h5>
+                            {/* </div> */}
                           </Card>
                         </Col>
                         <Col md={4} className=" ">
                           <Card className="p-2 background">
-                            <h3>Total Amount</h3>
-                            <h6>{moment().format("DD-MM-YYYY")}</h6>
-                            <div
+                            <h3 style={{ textAlign: "center" }}>Total Amount</h3>
+                            <h6 style={{ textAlign: "center" }}>{moment().format("DD-MM-YYYY")}</h6>
+                            {/* <div
                               style={{
                                 borderRadius: 50,
                                 height: 100,
                                 width: 100,
-                                border: "3px solid #BE783B",
+                                // border: "3px solid #BE783B",
                                 justifyContent: "center",
                                 alignItems: "center",
                                 display: "flex",
                               }}
-                            >
-                              {/* Brochure Requests Count: {dashboardData.brochureReqs.length} */}
-                              <h5>
-                                {todayInvestmentStats?.totalAmount}
-                              </h5>
-                            </div>
+                            > */}
+                            {/* Brochure Requests Count: {dashboardData.brochureReqs.length} */}
+                            <h5 style={{ textAlign: "center" }}>
+                              {todayInvestmentStats?.totalAmount?.toLocaleString('en-IN')} /-
+                            </h5>
+                            {/* </div> */}
                           </Card>
                         </Col>
                         <Col md={4} className=" ">
                           <Card className="p-2 background">
-                            <h3>Total Gold</h3>
-                            <h6>{moment().format("DD-MM-YYYY")}</h6>
-                            <div
+                            <h3 style={{ textAlign: "center" }}>Total Gold</h3>
+                            <h6 style={{ textAlign: "center" }}>{moment().format("DD-MM-YYYY")}</h6>
+                            {/* <div
                               style={{
                                 borderRadius: 50,
                                 height: 100,
                                 width: 100,
-                                border: "3px solid #BE783B",
+                                // border: "3px solid #BE783B",
                                 justifyContent: "center",
                                 alignItems: "center",
                                 display: "flex",
                               }}
-                            >
-                              {/* Brochure Requests Count: {dashboardData.brochureReqs.length} */}
-                              <h5>
-                                {(todayInvestmentStats?.totalGold)?.toFixed(2)}/gm
-                              </h5>
-                            </div>
+                            > */}
+                            {/* Brochure Requests Count: {dashboardData.brochureReqs.length} */}
+                            <h5 style={{ textAlign: "center" }}>
+                              {(todayInvestmentStats?.totalGold)?.toFixed(3)}/gm
+                            </h5>
+                            {/* </div> */}
+                          </Card>
+                        </Col>
+                      </Row>
+
+                      <Row className="mt-2">
+                        <Col md={3} className=" ">
+                          <Card className="p-2 background">
+                            <h3 style={{ textAlign: "center" }}>Wallet</h3>
+                            <h6 style={{ textAlign: "center" }}>Total Amount</h6>
+                            {/* <div
+                              style={{
+                                borderRadius: 50,
+                                height: 100,
+                                width: 100,
+                                // border: "3px solid #BE783B",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                display: "flex",
+                              }}
+                            > */}
+                            <h5 style={{ textAlign: "center" }}>
+                              {Wallete} /-
+                            </h5>
+                            {/* </div> */}
+                          </Card>
+                        </Col>
+                        <Col md={4} className=" ">
+                          <Card className="p-2 background">
+                            <h3 style={{ textAlign: "center" }}>Total Amount</h3>
+                            <h6 style={{ textAlign: "center" }}>{moment().format("DD-MM-YYYY")}</h6>
+                            {/* <div
+                              style={{
+                                borderRadius: 50,
+                                height: 100,
+                                width: 100,
+                                // border: "3px solid #BE783B",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                display: "flex",
+                              }}
+                            > */}
+                            {/* Brochure Requests Count: {dashboardData.brochureReqs.length} */}
+                            <h5 style={{ textAlign: "center" }}>
+                              {DayWallete} /-
+                            </h5>
+                            {/* </div> */}
+                          </Card>
+                        </Col>
+                        <Col md={4} className=" ">
+                          <Card className="p-2 background">
+                            <h3 style={{ textAlign: "center" }}>Total Gold</h3>
+                            <h6 style={{ textAlign: "center" }}>{moment().format("DD-MM-YYYY")}</h6>
+                            {/* <div
+                              style={{
+                                borderRadius: 50,
+                                height: 100,
+                                width: 100,
+                                // border: "3px solid #BE783B",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                display: "flex",
+                              }}
+                            > */}
+                            {/* Brochure Requests Count: {dashboardData.brochureReqs.length} */}
+                            <h5 style={{ textAlign: "center" }}>
+                              {DayWalletegold?.toFixed(3)}/gm
+                            </h5>
+                            {/* </div> */}
                           </Card>
                         </Col>
                       </Row>
