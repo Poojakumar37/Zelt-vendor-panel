@@ -410,14 +410,14 @@ function CustomersScheme() {
                                     <div style={invoiceStyles.summaryRow}>
                                         <span style={invoiceStyles.summaryLabel}>Platform Fee:</span>
                                         <span style={invoiceStyles.summaryValue}>
-                                            {formatCurrency(selectedInvestment?.platformFee || 0)}
+                                            {formatCurrency(selectedInvestment?.PlatformFee || 0)}
                                         </span>
                                     </div>
                                     <div style={invoiceStyles.divider} />
                                     <div style={invoiceStyles.summaryRow}>
                                         <span style={invoiceStyles.totalLabel}>Total Payable:</span>
                                         <span style={invoiceStyles.totalValue}>
-                                            {formatCurrency(parseInt(selectedInvestment?.Amount) + parseInt(selectedInvestment?.platformFee || 0))}
+                                            {formatCurrency(parseInt(selectedInvestment?.Amount) + parseInt(selectedInvestment?.PlatformFee || 0))}
                                         </span>
                                     </div>
                                 </div>

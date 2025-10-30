@@ -367,7 +367,7 @@ function Wallete() {
                         <div style={invoiceStyles.summaryRow}>
                           <span style={invoiceStyles.summaryLabel}>Platform Fee:</span>
                           <span style={invoiceStyles.summaryValue}>
-                            {formatCurrency(selectedWalletItem?.platformFee || 0)}
+                            {formatCurrency(selectedWalletItem?.PlatformFee || 0)}
                           </span>
                         </div>
                         <div style={invoiceStyles.divider} />
